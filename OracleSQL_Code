@@ -260,8 +260,8 @@ CREATE TABLE TRANSACTIONTYPE_(
      idTransactionType NUMBER(9) PRIMARY KEY,
      nameTransactionType VARCHAR(45),
      description VARCHAR(45),
-     appliedRate number,
-     LimiteTransaction FLOAT
+     appliedRate NUMBER(3),
+     LimitTransaction FLOAT
 );
 /
 
@@ -417,10 +417,10 @@ ALTER TABLE CLIENT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 
 CREATE OR REPLACE TRIGGER UPDATE_AGE_CLIENT
 BEFORE INSERT ON CLIENT_
-FOR EACH ROW
+    FOR EACH ROW
 BEGIN
   :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
-END;
+    END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -435,6 +435,9 @@ CREATE TABLE ACCOUNT_(
     nif NUMBER(9),
     idAgency NUMBER(9),
     idAccountType NUMBER(9),
+    idAccountType NUMBER(9),
+    CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif),
+    idAccountType NUMBER(9),    
     CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif),
     CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency),
     CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)
@@ -560,8 +563,10 @@ CREATE TABLE TRANSACTION_(
      status varchar(45) CHECK (status IN ('processando', 'concluido', 'etc')),
      idCard NUMBER(9),
      idTransactionType NUMBER(9),
+     idAccount NUMBER(9),
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
     CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType)    
+     CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
 );
 /
 
