@@ -383,7 +383,8 @@ ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 
 CREATE TABLE OWNER_(         
     idAccount NUMBER(9),
-    nif NUMBER(9),   
+    nif NUMBER(9), 
+    ownership NUMBER(1) CHECK (ownership IN (1,2,3)),  
     ADD CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
     ADD CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES Client_(nif)
 );
