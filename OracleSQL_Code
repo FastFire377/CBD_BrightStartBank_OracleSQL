@@ -251,7 +251,7 @@ CREATE TABLE TRANSACTIONTYPE_(
      idTransactionType NUMBER(9) PRIMARY KEY,
      nameTransactionType VARCHAR(45),
      description VARCHAR(45),
-     appliedRate VARCHAR(45),
+     appliedRate NUMBER(3),
      LimitTransaction FLOAT
 );
 /
