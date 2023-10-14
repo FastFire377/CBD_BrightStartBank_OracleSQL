@@ -1,3 +1,88 @@
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- CLEAR DATABASE.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TABLE TRANSACTION_;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+ALTER TABLE AGENCY_ DROP COLUMN IdManager;
+
+DROP TABLE CARD_;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLE ACCOUNT_;
+/
+
+-->>>>>>>>>>>
+
+drop PROCEDURE UpdateAge;
+/
+
+DROP TABLE CLIENT_;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLE EMPLOYEE_;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLE AGENCY_;
+/
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TABLE LOCATION_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER accounttype_trg;
+/
+
+DROP SEQUENCE accounttype_seq;
+/
+
+DROP TABLE ACCOUNTTYPE_;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLE TRANSACTIONTYPE_;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TYPE AddressType;
+/
+
+-->>>>>>>>>>>
+
+DROP TYPE ContactType;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TYPES Address AND Contact.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TYPE AddressType AS OBJECT ( 
@@ -7,6 +92,8 @@ CREATE TYPE AddressType AS OBJECT (
 );
 /
 
+-->>>>>>>>>>>-------------------------------------------------------------------
+
 CREATE TYPE ContactType AS OBJECT ( 
     nin number(3),
     Contact NUMBER(9),
@@ -15,6 +102,8 @@ CREATE TYPE ContactType AS OBJECT (
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLESPACE STATIC_TABLE_SPACE
 DATAFILE 'static_tablesV2.dbf' SIZE 50M
@@ -22,7 +111,7 @@ AUTOEXTEND ON NEXT 5M
 MAXSIZE UNLIMITED;
 /
 
--->>>>>>>>>>>-----------------------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE LOCATION_(
     idLocation NUMBER(9) PRIMARY KEY,
@@ -31,9 +120,12 @@ CREATE TABLE LOCATION_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
--->>>>>>>>>>>---------------------------
+
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE ACCOUNTTYPE_(
      idAccountType NUMBER(9) PRIMARY KEY,
@@ -43,10 +135,31 @@ CREATE TABLE ACCOUNTTYPE_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE ACCOUNTTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
+ 
+-->>>>>>>>>>>
 
--->>>>>>>>>>>---------------------------
+CREATE SEQUENCE accounttype_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>>
+
+CREATE OR REPLACE TRIGGER accounttype_trg
+BEFORE INSERT ON ACCOUNTTYPE_
+FOR EACH ROW
+BEGIN
+  SELECT accounttype_seq.NEXTVAL
+  INTO :new.idAccountType
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE TRANSACTIONTYPE_(
      idTransactionType NUMBER(9) PRIMARY KEY,
@@ -57,8 +170,13 @@ CREATE TABLE TRANSACTIONTYPE_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE TRANSACTIONTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE NORMALS AND TABLES AGENCY, EMPLOYEE, CLIENT, ACCOUNT AND CARD.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLESPACE NORMALS_TABLE_SPACE
@@ -67,7 +185,7 @@ AUTOEXTEND ON NEXT 5M
 MAXSIZE UNLIMITED;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE AGENCY_(
     idAgency NUMBER(9) PRIMARY KEY,
@@ -82,10 +200,12 @@ CREATE TABLE AGENCY_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE AGENCY_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE EMPLOYEE_(
     nif NUMBER(9) PRIMARY KEY,
@@ -104,10 +224,12 @@ CREATE TABLE EMPLOYEE_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE CLIENT_(
     nif NUMBER(9) PRIMARY KEY,
@@ -126,16 +248,16 @@ CREATE TABLE CLIENT_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE CLIENT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 --insert
 
--->>>>>>>>>>>
-
-drop PROCEDURE UpdateAge;
+-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 CREATE OR REPLACE PROCEDURE UpdateAge as
 begin
@@ -147,7 +269,7 @@ END;
 
 call UpdateAge();
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE ACCOUNT_(
     idAccount NUMBER(9) PRIMARY KEY,
@@ -166,7 +288,7 @@ CREATE TABLE ACCOUNT_(
 ALTER TABLE ACCOUNT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE CARD_(
     idCard NUMBER(9) PRIMARY KEY,
@@ -179,9 +301,13 @@ CREATE TABLE CARD_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE AND TABLE TRANSACTION.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLESPACE TRANSACTION_TABLE_SPACE
@@ -190,7 +316,7 @@ AUTOEXTEND ON NEXT 10M
 MAXSIZE UNLIMITED;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE TRANSACTION_(
      idTransaction NUMBER(9) PRIMARY KEY,
@@ -205,31 +331,45 @@ CREATE TABLE TRANSACTION_(
 );
 /
 
+-->>>>>>>>>>>
+
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
 /
 
--->>>>>>>>>>>---------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
+/
+
+-->>>>>>>>>>>
 
 ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
+/
 
--->>>>>>>>>>>------------------------------------------------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- COMMENTS.
+-->>>>>>>>>>>-------------------------------------------------------------------
 
 COMMENT ON TABLE LOCATION_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre localizações, incluindo ID da localização, distrito/província 
 e país.';
 /
 
+-->>>>>>>>>>>
+
 COMMENT ON TABLE ACCOUNTTYPE_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre tipos de conta, incluindo ID do tipo de conta, nome, 
 descrição e requisitos mínimos.';
 /
 
+-->>>>>>>>>>>
+
 COMMENT ON TABLE TRANSACTIONTYPE_ IS 'Esta tabela destina-se ao armazenamento 
 de informações sobre tipos de transação, incluindo ID do tipo de transação, 
 nome, descrição, taxa aplicada e limite.';
 /
+
+-->>>>>>>>>>>
 
 COMMENT ON TABLE AGENCY_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre agências, incluindo ID da agência, nome da agência, horário 
@@ -237,11 +377,15 @@ de funcionamento, número de funcionários, detalhes de contato e ID de
 localização referente à tabela LOCATION_.';
 /
 
+-->>>>>>>>>>>
+
 COMMENT ON TABLE EMPLOYEE_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre funcionários, incluindo NIF, nome do funcionário, sobrenome, 
 detalhes de contato, endereço, email, idade, data de nascimento, IBAN, cargo e 
 salário.';
 /
+
+-->>>>>>>>>>>
 
 COMMENT ON TABLE CLIENT_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre clientes, incluindo NIF, nome do cliente, detalhes de contato, 
@@ -249,68 +393,23 @@ endereço, email, idade, data de nascimento, profissão, estado civil e
 palavra-passe.';
 /
 
+-->>>>>>>>>>>
+
 COMMENT ON TABLE ACCOUNT_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre contas, incluindo ID da conta, quando foi criada, saldo e 
 estado.';
 /
+
+-->>>>>>>>>>>
 
 COMMENT ON TABLE CARD_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre cartões, incluindo ID do cartão, data de validade, PIN, 
 CVC e tipo de cartão.';
 /
 
+-->>>>>>>>>>>
+
 COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos 
 dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
 e data de início da transação.';
-/
-
--->>>>>>>>>>>------------------------------------------------------------------
-
-DROP TABLE TRANSACTION_;
-/
-
--->>>>>>>>>>>------------------------
-
-ALTER TABLE AGENCY_ DROP COLUMN IdManager;
-
-DROP TABLE CARD_;
-/
-
-DROP TABLE ACCOUNT_;
-/
-
-DROP TABLE CLIENT_;
-/
-
-DROP TABLE EMPLOYEE_;
-/
-
-DROP TABLE AGENCY_;
-/
--->>>>>>>>>>>------------------------
-
-DROP TABLE LOCATION_;
-/
-
-DROP TABLE ACCOUNTTYPE_;
-/
-
-DROP TABLE TRANSACTIONTYPE_;
-/
-
--->>>>>>>>>>>------------------------
-
-DROP TYPE AddressType;
-/
-DROP TYPE ContactType;
-/
--->>>>>>>>>>>------------------------
-
-DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-/
-
-DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-/
-
-DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
 /
