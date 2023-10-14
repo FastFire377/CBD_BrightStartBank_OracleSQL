@@ -252,7 +252,7 @@ CREATE TABLE TRANSACTIONTYPE_(
      nameTransactionType VARCHAR(45),
      description VARCHAR(45),
      appliedRate VARCHAR(45),
-     LimeteTransaction FLOAT
+     LimitTransaction FLOAT
 );
 /
 
