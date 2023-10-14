@@ -179,6 +179,7 @@ CREATE TABLE LOCATION_(
     country VARCHAR(45)
 );
 /
+
 -->>>>>>>>>>>
 
 ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
@@ -201,6 +202,9 @@ BEGIN
   INTO :new.idLocation
   FROM dual;
 END;
+/
+
+ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -481,12 +485,12 @@ END;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
-CREATE TABLE OWNER_(         
+CREATE TABLE OWNER_ (         
     idAccount NUMBER(9),
     nif NUMBER(9), 
-    ownership NUMBER(1) CHECK (ownership IN (1,2,3)),  
-    ADD CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
-    ADD CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES Client_(nif)
+    ownership NUMBER(1),
+    CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif)
 );
 
 /
@@ -520,7 +524,7 @@ CREATE TABLE TRANSACTION_(
 );
 /
 
--->>>>>>>>>>> 
+-->>>>>>>>>>>
 
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
 /
