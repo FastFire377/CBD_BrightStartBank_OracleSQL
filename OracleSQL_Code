@@ -139,6 +139,8 @@ DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
 -- TYPES Address AND Contact.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> CREATE TYPE 
+
 CREATE TYPE AddressType AS OBJECT ( 
     street VARCHAR(45),
     districtProvince VARCHAR(45),
@@ -147,6 +149,8 @@ CREATE TYPE AddressType AS OBJECT (
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE 
 
 CREATE TYPE ContactType AS OBJECT ( 
     nin number(3),
@@ -167,6 +171,8 @@ MAXSIZE UNLIMITED;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> CREATE TABLE 
+
 CREATE TABLE LOCATION_(
     idLocation NUMBER(9) PRIMARY KEY,
     districtProvince varchar(99),
@@ -178,14 +184,14 @@ CREATE TABLE LOCATION_(
 ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE LOCATION_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER LOCATION_trg
 BEFORE INSERT ON LOCATION_
@@ -198,6 +204,8 @@ END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
 
 CREATE TABLE ACCOUNTTYPE_(
      idAccountType NUMBER(9) PRIMARY KEY,
@@ -212,14 +220,14 @@ CREATE TABLE ACCOUNTTYPE_(
 ALTER TABLE ACCOUNTTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE ACCOUNTTYPE_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER ACCOUNTTYPE_trg
 BEFORE INSERT ON ACCOUNTTYPE_
@@ -232,6 +240,8 @@ END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
 
 CREATE TABLE TRANSACTIONTYPE_(
      idTransactionType NUMBER(9) PRIMARY KEY,
@@ -247,14 +257,14 @@ CREATE TABLE TRANSACTIONTYPE_(
 ALTER TABLE TRANSACTIONTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE TRANSACTIONTYPE_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER TRANSACTIONTYPE_trg
 BEFORE INSERT ON TRANSACTIONTYPE_
@@ -270,6 +280,8 @@ END;
 -- TABLESPACE NORMALS AND TABLES AGENCY, EMPLOYEE, CLIENT, ACCOUNT AND CARD.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> CREATE TABLESPACE
+
 CREATE TABLESPACE NORMALS_TABLE_SPACE
 DATAFILE 'regular_tablesV2.dbf' SIZE 50M
 AUTOEXTEND ON NEXT 5M
@@ -277,6 +289,8 @@ MAXSIZE UNLIMITED;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
 
 CREATE TABLE AGENCY_(
     idAgency NUMBER(9) PRIMARY KEY,
@@ -296,14 +310,14 @@ CREATE TABLE AGENCY_(
 ALTER TABLE AGENCY_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE AGENCY_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER AGENCY_trg
 BEFORE INSERT ON AGENCY_
@@ -316,6 +330,8 @@ END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
 
 CREATE TABLE EMPLOYEE_(
     nif NUMBER(9) PRIMARY KEY,
@@ -350,6 +366,8 @@ ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
 /
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> CREATE TABLE 
+
 CREATE TABLE CLIENT_(
     nif NUMBER(9) PRIMARY KEY,
     nameClient  VARCHAR(45),
@@ -371,12 +389,7 @@ CREATE TABLE CLIENT_(
 ALTER TABLE CLIENT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
---insert
-
--->>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+--VER ISTO
 CREATE OR REPLACE PROCEDURE UpdateAge as
 begin
     UPDATE CLIENT_
@@ -388,6 +401,8 @@ END;
 call UpdateAge();
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE
 
 CREATE TABLE ACCOUNT_(
     idAccount NUMBER(9) PRIMARY KEY,
@@ -406,14 +421,14 @@ CREATE TABLE ACCOUNT_(
 ALTER TABLE ACCOUNT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE ACCOUNT_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER ACCOUNT_trg
 BEFORE INSERT ON ACCOUNT_
@@ -426,6 +441,8 @@ END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE
 
 CREATE TABLE CARD_(
     idCard NUMBER(9) PRIMARY KEY,
@@ -443,14 +460,14 @@ CREATE TABLE CARD_(
 ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE CARD_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER CARD_trg
 BEFORE INSERT ON CARD_
@@ -489,6 +506,8 @@ MAXSIZE UNLIMITED;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> CREATE TABLE
+
 CREATE TABLE TRANSACTION_(
      idTransaction NUMBER(9) PRIMARY KEY,
      balance VARCHAR(45),
@@ -501,19 +520,19 @@ CREATE TABLE TRANSACTION_(
 );
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> 
 
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE TRANSACTION_seq
   START WITH 1
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>>
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER TRANSACTION_trg
 BEFORE INSERT ON TRANSACTION_
@@ -529,26 +548,28 @@ END;
 -- COMMENTS.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>> LOCATION_
+
 COMMENT ON TABLE LOCATION_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre localizações, incluindo ID da localização, distrito/província 
 e país.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> ACCOUNTTYPE
 
 COMMENT ON TABLE ACCOUNTTYPE_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre tipos de conta, incluindo ID do tipo de conta, nome, 
 descrição e requisitos mínimos.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> TRANSACTIONTYPE
 
 COMMENT ON TABLE TRANSACTIONTYPE_ IS 'Esta tabela destina-se ao armazenamento 
 de informações sobre tipos de transação, incluindo ID do tipo de transação, 
 nome, descrição, taxa aplicada e limite.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> AGENCY
 
 COMMENT ON TABLE AGENCY_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre agências, incluindo ID da agência, nome da agência, horário 
@@ -556,7 +577,7 @@ de funcionamento, número de funcionários, detalhes de contato e ID de
 localização referente à tabela LOCATION_.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> EMPLOYEE
 
 COMMENT ON TABLE EMPLOYEE_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre funcionários, incluindo NIF, nome do funcionário, sobrenome, 
@@ -564,7 +585,7 @@ detalhes de contato, endereço, email, idade, data de nascimento, IBAN, cargo e
 salário.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> CLIENT
 
 COMMENT ON TABLE CLIENT_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre clientes, incluindo NIF, nome do cliente, detalhes de contato, 
@@ -572,23 +593,67 @@ endereço, email, idade, data de nascimento, profissão, estado civil e
 palavra-passe.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> ACCOUNT
 
 COMMENT ON TABLE ACCOUNT_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre contas, incluindo ID da conta, quando foi criada, saldo e 
 estado.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> CARD
 
 COMMENT ON TABLE CARD_ IS 'Esta tabela destina-se ao armazenamento de 
 informações sobre cartões, incluindo ID do cartão, data de validade, PIN, 
 CVC e tipo de cartão.';
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>> TRANSACTION
 
 COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos 
 dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
 e data de início da transação.';
 /
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- INSERTS.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> LOCATION
+
+
+
+-->>>>>>>>>>> ACCOUNTTYPE
+
+
+
+-->>>>>>>>>>> TRANSACTIONTYPE
+
+
+
+-->>>>>>>>>>> AGENCY
+
+
+
+-->>>>>>>>>>> EMPLOYEE
+
+
+
+-->>>>>>>>>>> CLIENT
+
+
+
+-->>>>>>>>>>> ACCOUNT
+
+
+
+-->>>>>>>>>>> CARD
+
+
+
+-->>>>>>>>>>> OWNER
+
+
+
+-->>>>>>>>>>> TRANSACTION
+
+
