@@ -1,7 +1,7 @@
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- CLEAR DATABASE.
--->>>>>>>>>>>-------------------------------------------------------------------
+-->>>>>>>>>>>-------------------------------------------------------------------llll
 
 DROP TABLE TRANSACTION_;
 /
@@ -9,6 +9,7 @@ DROP TABLE TRANSACTION_;
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
+/
 
 DROP TABLE CARD_;
 /
@@ -104,12 +105,6 @@ CREATE TYPE ContactType AS OBJECT (
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
 -->>>>>>>>>>>-------------------------------------------------------------------
--- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
--->>>>>>>>>>>-------------------------------------------------------------------
-
---tablespace
-
--->>>>>>>>>>>------------------------
 
 CREATE TABLESPACE STATIC_TABLE_SPACE
 DATAFILE 'static_tablesV2.dbf' SIZE 50M
@@ -340,8 +335,6 @@ CREATE TABLE TRANSACTION_(
 
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
 /
-
-
 
 -->>>>>>>>>>>------------------------
 
