@@ -285,7 +285,7 @@ CREATE TABLE EMPLOYEE_(
     JobRole VARCHAR(45),
     salary NUMBER(20),
     idAgency NUMBER(9),
-    FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
+    CONSTRAINT FK_Employee_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
 );
 /
 
@@ -317,7 +317,7 @@ CREATE TABLE CLIENT_(
     maritalStatus VARCHAR(50) CHECK (maritalStatus IN ('SOLTEIRO', 'CASADO')),
     passwordCLient VARCHAR(45),
     idAgency NUMBER(9),
-    FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
+    CONSTRAINT FK_Client_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
 );
 /
 
@@ -383,10 +383,11 @@ ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 
 CREATE TABLE OWNER_(         
     idAccount NUMBER(9),
-    nif NUMBER(9),
-    FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
-    FOREIGN KEY (nif) REFERENCES Client_(nif)
+    nif NUMBER(9),   
+    ADD CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
+    ADD CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES Client_(nif)
 );
+
 /
 
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
@@ -411,9 +412,8 @@ CREATE TABLE TRANSACTION_(
      status varchar(45) CHECK (status IN ('processando', 'concluido', 'etc')),
      idCard NUMBER(9),
      idTransactionType NUMBER(9),
-    FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
-    FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType)
-    
+    CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
+    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType)    
 );
 /
 
