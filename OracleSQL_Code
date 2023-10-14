@@ -17,9 +17,6 @@ DROP TABLE TRANSACTION_;
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
 /
 
-DROP TRIGGER UPDATE_EXPIRATION_CARD;
-/
-
 DROP TRIGGER CARD_trg;
 /
 
@@ -48,9 +45,6 @@ ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
 ALTER TABLE ACCOUNT_ DROP COLUMN idAccountType;
 /
 
-DROP TRIGGER UPDATE_CREATION_ACCOUNT;
-/
-
 DROP TRIGGER ACCOUNT_trg;
 /
 
@@ -62,16 +56,13 @@ DROP TABLE ACCOUNT_;
 
 -->>>>>>>>>>>
 
-DROP TRIGGER UPDATE_AGE_CLIENT;
+drop PROCEDURE UpdateAge;
 /
 
 DROP TABLE CLIENT_;
 /
 
 -->>>>>>>>>>>
-
-DROP TRIGGER UPDATE_AGE_EMPLOYEE;
-/
 
 DROP TABLE EMPLOYEE_;
 /
@@ -377,17 +368,6 @@ ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
 
 ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
 /
-
--->>>>>>>>>>> TRIGGER
-
-CREATE OR REPLACE TRIGGER UPDATE_AGE_EMPLOYEE
-BEFORE INSERT ON EMPLOYEE_
-FOR EACH ROW
-BEGIN
-  :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
-END;
-/
-
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 -->>>>>>>>>>> CREATE TABLE 
@@ -456,7 +436,7 @@ CREATE SEQUENCE ACCOUNT_seq
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>> TRIGGER AUTO INCREMENT
+-->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER ACCOUNT_trg
 BEFORE INSERT ON ACCOUNT_
@@ -465,16 +445,6 @@ BEGIN
   SELECT ACCOUNT_seq.NEXTVAL
   INTO :new.idAccount
   FROM dual;
-END;
-/
-
--->>>>>>>>>>> TRIGGER UPDATE CREATION
-
-CREATE OR REPLACE TRIGGER UPDATE_CREATION_ACCOUNT
-BEFORE INSERT ON ACCOUNT_
-FOR EACH ROW
-BEGIN
-  :new.creationDate := SYSDATE;
 END;
 /
 
@@ -514,16 +484,6 @@ BEGIN
   SELECT CARD_seq.NEXTVAL
   INTO :new.idCard
   FROM dual;
-END;
-/
-
--->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
-
-CREATE OR REPLACE TRIGGER UPDATE_EXPIRATION_CARD
-BEFORE INSERT ON CARD_
-FOR EACH ROW
-BEGIN
-  :new.expirationDate := SYSDATE - INTERVAL '5' YEAR;
 END;
 /
 
@@ -593,15 +553,7 @@ BEGIN
   FROM dual;
 END;
 /
--->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
 
-CREATE OR REPLACE TRIGGER UPDATE_DATE_TRANSACTION
-BEFORE INSERT ON TRANSACTION_
-FOR EACH ROW
-BEGIN
-  :new.dateTransaction := SYSDATE;
-END;
-/
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- COMMENTS.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -679,40 +631,148 @@ e data de início da transação.';
 -->>>>>>>>>>> LOCATION
 
 --Meter aqui--
+INSERT ALL
+    INTO LOCATION_ (districtProvince, country) VALUES ('Lisboa', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Faro', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Beja', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Porto, Portugal', 'Portugal')
+
+    -- Add more INTO clauses as needed for additional rows
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> ACCOUNTTYPE
 
 --Meter aqui--
+INSERT ALL
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta-Poupaça', 'Conta para poupar dinhero', 'null')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta à ordem', 'Não tem produtos ou serviços específicos associados.', '>=18')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta jovem', 'Conta para Jovens Adolescente', '>=18 e <=25')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta Ordenado', 'Conta para onde vai parar o seu Oerdenado', '>=18')
+
+    -- Add more INTO clauses as needed for additional rows
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> TRANSACTIONTYPE
 
 --Meter aqui--
+INSERT ALL
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_internacional', 'Transferencia num atm internacional', 3, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_Cambio', 'Cambio ', 5, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Cheque', 'Deposito ou levantamento por cheque', 1, )
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, 1000000)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Cartao', 'Transacao por cartao', 0, 1)
+SELECT * FROM dual;
 
 -->>>>>>>>>>> AGENCY
 
 --Meter aqui--
+INSERT ALL
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Solverde', '9:00 - 16:00', 3, 1)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Betano', '8:30 - 15:30', 3, 2)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Betclick', '10:00 - 17:00', 3, 3)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Vamos Apostar', '9:30 - 17:00', 3, 4)
+    -- Add more INTO clauses as needed for additional agencies
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> EMPLOYEE
 
 --Meter aqui--
+INSERT ALL
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, address, email, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (123456789, 'Pedro', 'Gonçalves', 'Rua Marmelo', 'pedro@gmail.com', 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, address, email, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (987654321, 'Ricardo', 'Vilhena', 'Rua M&M', 'ricardo@gmail.com', 18, TO_DATE('2004-12-18', 'YYYY-MM-DD'), 'DEF987654321', 'Chefe Markting', 7500, 2)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, address, email, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234567890, ';Marco', 'Valente', 'Rua Vodka', 'marco@gmail.com', 21, TO_DATE('2002-06-06', 'YYYY-MM-DD'), 'GHI234567890', 'Chefe Designe ', 8000, 1)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, address, email, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234567890, ';Rodrigo', 'Pimenta', 'Rua Getto', 'reodrigo@gmail.com', 20, TO_DATE('2003-06-15', 'YYYY-MM-DD'), 'GHI234567890', 'Rececionista', 2000, 3)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, address, email, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234567890, ';Lucas', 'Martins', 'Rua Ginasio', 'lucas@gmail.com', 20, TO_DATE('2003-08-16', 'YYYY-MM-DD'), 'GHI234567890', 'Homem das Limpezas ', 1000, 2)
+        -- Add more INTO clauses as needed for additional employees
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> CLIENT
 
 --Meter aqui--
+INSERT ALL
+    INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (123456789, 'Alice', 'Rua Ola', 28, TO_DATE('1995-03-15', 'YYYY-MM-DD'), 'Engenheiro', 'CASADO', 'alice123', 1)
+    INTO CLIENT_ (nif, nameClient, address, email, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (987654321, 'Bob', '456 Oak St', 32, TO_DATE('1990-11-20', 'YYYY-MM-DD'), 'Professor', 'SOLTEIRO', 'bob456', 2)
+    INTO CLIENT_ (nif, nameClient, address, email, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (234567890, 'Charlie', '789 Maple St', 24, TO_DATE('1998-06-10', 'YYYY-MM-DD'), 'Designer', 'SOLTEIRO', 'charlie789', 1)
+    -- Add more INTO clauses as needed for additional clients
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> ACCOUNT
 
 --Meter aqui--
+INSERT ALL
+    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 123456789, 1, 1)
+    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-02-20', 'YYYY-MM-DD'), 7000.00, 'congelada', 987654321, 2, 2)
+    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal', 234567890, 1, 3)
+    -- Add more INTO clauses as needed for additional accounts
+SELECT * FROM dual;
+
+
 
 -->>>>>>>>>>> CARD
 
 --Meter aqui--
+INSERT ALL
+    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
+    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1234, 789, 'debito', 1)
+    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
+    VALUES (TO_DATE('2024-02-20', 'YYYY-MM-DD'), 5678, 456, 'credito', 2)
+    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9876, 123, 'debito', 3)
+    -- Add more INTO clauses as needed for additional cards
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> OWNER
 
 --Meter aqui--
+INSERT ALL
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (1, 123456789, 1)
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (2, 987654321, 0)
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (3, 234567890, 1)
+    -- Add more INTO clauses as needed for additional owner records
+SELECT * FROM dual;
+
 
 -->>>>>>>>>>> TRANSACTION
 
 --Meter aqui--
-
+-- Inserting multiple rows into the TRANSACTION_ table
+INSERT ALL
+    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'concluido', 1, 1)
+    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    VALUES ('50.00', TO_DATE('2023-02-20', 'YYYY-MM-DD'), 'processando', 2, 2)
+    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    VALUES ('200.00', TO_DATE('2023-03-10', 'YYYY-MM-DD'), 'concluido', 3, 3)
+    -- Add more INTO clauses as needed for additional transactions
+SELECT * FROM dual;
