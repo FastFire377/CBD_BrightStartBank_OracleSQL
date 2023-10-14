@@ -104,6 +104,12 @@ CREATE TYPE ContactType AS OBJECT (
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
 -->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+--tablespace
+
+-->>>>>>>>>>>------------------------
 
 CREATE TABLESPACE STATIC_TABLE_SPACE
 DATAFILE 'static_tablesV2.dbf' SIZE 50M
@@ -216,7 +222,7 @@ CREATE TABLE EMPLOYEE_(
     email VARCHAR(99),
     age number(3),
     dateBirth date,
-    iban VARCHAR(36),
+    iban VARCHAR(99),
     JobRole VARCHAR(45),
     salary NUMBER(20),
     idAgency NUMBER(9),
@@ -233,7 +239,6 @@ ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 
 CREATE TABLE CLIENT_(
     nif NUMBER(9) PRIMARY KEY,
-    iban VARCHAR(36),
     nameClient  VARCHAR(45),
     Contact ContactType,
     address AddressType,
@@ -336,7 +341,23 @@ CREATE TABLE TRANSACTION_(
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
 /
 
--->>>>>>>>>>>-------------------------------------------------------------------
+
+
+-->>>>>>>>>>>------------------------
+
+CREATE TABLE OWNER_(         
+    idAccount NUMBER(9),
+    nif NUMBER(9),
+    FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
+    FOREIGN KEY (nif) REFERENCES Client_(nif)
+    
+);
+/
+
+ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
+/
+
+-->>>>>>>>>>>------------------------
 
 ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
 /
