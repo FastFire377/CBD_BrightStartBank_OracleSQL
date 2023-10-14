@@ -17,6 +17,9 @@ DROP TABLE TRANSACTION_;
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
 /
 
+DROP TRIGGER UPDATE_EXPIRATION_CARD;
+/
+
 DROP TRIGGER CARD_trg;
 /
 
@@ -45,6 +48,9 @@ ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
 ALTER TABLE ACCOUNT_ DROP COLUMN idAccountType;
 /
 
+DROP TRIGGER UPDATE_CREATION_ACCOUNT;
+/
+
 DROP TRIGGER ACCOUNT_trg;
 /
 
@@ -56,13 +62,16 @@ DROP TABLE ACCOUNT_;
 
 -->>>>>>>>>>>
 
-drop PROCEDURE UpdateAge;
+DROP TRIGGER UPDATE_AGE_CLIENT;
 /
 
 DROP TABLE CLIENT_;
 /
 
 -->>>>>>>>>>>
+
+DROP TRIGGER UPDATE_AGE_EMPLOYEE;
+/
 
 DROP TABLE EMPLOYEE_;
 /
@@ -343,7 +352,6 @@ CREATE TABLE EMPLOYEE_(
     surname VARCHAR(45),
     Contact ContactType,
     address AddressType,
-    email VARCHAR(99),
     age number(3),
     dateBirth date,
     iban VARCHAR(99),
@@ -368,6 +376,17 @@ ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
 
 ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
 /
+
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER UPDATE_AGE_EMPLOYEE
+BEFORE INSERT ON EMPLOYEE_
+FOR EACH ROW
+BEGIN
+  :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
+END;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 -->>>>>>>>>>> CREATE TABLE 
@@ -377,7 +396,6 @@ CREATE TABLE CLIENT_(
     nameClient  VARCHAR(45),
     Contact ContactType,
     address AddressType,
-    email VARCHAR(99),
     age number(3),
     dateBirth date,
     jobClient Varchar(45),
@@ -393,16 +411,15 @@ CREATE TABLE CLIENT_(
 ALTER TABLE CLIENT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
---VER ISTO
-CREATE OR REPLACE PROCEDURE UpdateAge as
-begin
-    UPDATE CLIENT_
-    set age = trunc(months_between(sysdate, dateBirth)/12);
-    COMMIT;
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER UPDATE_AGE_CLIENT
+BEFORE INSERT ON CLIENT_
+FOR EACH ROW
+BEGIN
+  :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
 END;
 /
-
-call UpdateAge();
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -432,7 +449,7 @@ CREATE SEQUENCE ACCOUNT_seq
   INCREMENT BY 1;
 /
  
--->>>>>>>>>>> TRIGGER
+-->>>>>>>>>>> TRIGGER AUTO INCREMENT
 
 CREATE OR REPLACE TRIGGER ACCOUNT_trg
 BEFORE INSERT ON ACCOUNT_
@@ -441,6 +458,16 @@ BEGIN
   SELECT ACCOUNT_seq.NEXTVAL
   INTO :new.idAccount
   FROM dual;
+END;
+/
+
+-->>>>>>>>>>> TRIGGER UPDATE CREATION
+
+CREATE OR REPLACE TRIGGER UPDATE_CREATION_ACCOUNT
+BEFORE INSERT ON ACCOUNT_
+FOR EACH ROW
+BEGIN
+  :new.creationDate := SYSDATE;
 END;
 /
 
@@ -480,6 +507,16 @@ BEGIN
   SELECT CARD_seq.NEXTVAL
   INTO :new.idCard
   FROM dual;
+END;
+/
+
+-->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
+
+CREATE OR REPLACE TRIGGER UPDATE_EXPIRATION_CARD
+BEFORE INSERT ON CARD_
+FOR EACH ROW
+BEGIN
+  :new.expirationDate := SYSDATE - INTERVAL '5' YEAR;
 END;
 /
 
@@ -547,7 +584,15 @@ BEGIN
   FROM dual;
 END;
 /
+-->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
 
+CREATE OR REPLACE TRIGGER UPDATE_DATE_TRANSACTION
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+BEGIN
+  :new.dateTransaction := SYSDATE;
+END;
+/
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- COMMENTS.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -661,3 +706,4 @@ e data de início da transação.';
 -->>>>>>>>>>> TRANSACTION
 
 --Meter aqui--
+
