@@ -16,6 +16,23 @@ DROP TABLE CARD_;
 
 -->>>>>>>>>>>
 
+ALTER TABLE OWNER_ DROP COLUMN idAccount;
+/
+
+DROP TABLE OWNER_;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE ACCOUNT_ DROP COLUMN nif;
+/
+
+ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
+/
+
+ALTER TABLE ACCOUNT_ DROP COLUMN idAccountType;
+/
+
 DROP TABLE ACCOUNT_;
 /
 
@@ -279,6 +296,15 @@ ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
+/
+-->>>>>>>>>>>-------------------------------------------------------------------
+
 CREATE TABLE CLIENT_(
     nif NUMBER(9) PRIMARY KEY,
     nameClient  VARCHAR(45),
@@ -354,6 +380,19 @@ ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
+
+CREATE TABLE OWNER_(         
+    idAccount NUMBER(9),
+    nif NUMBER(9),
+    FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
+    FOREIGN KEY (nif) REFERENCES Client_(nif)
+);
+/
+
+ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE AND TABLE TRANSACTION.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -381,30 +420,6 @@ CREATE TABLE TRANSACTION_(
 -->>>>>>>>>>>
 
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
-/
-
--->>>>>>>>>>>------------------------
-
-CREATE TABLE OWNER_(         
-    idAccount NUMBER(9),
-    nif NUMBER(9),
-    FOREIGN KEY (idAccount) REFERENCES Account_(idAccount),
-    FOREIGN KEY (nif) REFERENCES Client_(nif)
-    
-);
-/
-
-ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
-/
-
--->>>>>>>>>>>------------------------
-
-ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
-/
-
--->>>>>>>>>>>
-
-ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -474,3 +489,4 @@ COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos
 dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
 e data de início da transação.';
 /
+
