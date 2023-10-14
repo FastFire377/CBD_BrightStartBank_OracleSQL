@@ -416,6 +416,7 @@ CREATE TABLE ACCOUNT_(
     nif NUMBER(9),
     idAgency NUMBER(9),
     idAccountType NUMBER(9),
+    CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif),
     CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency),
     CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)
 );
