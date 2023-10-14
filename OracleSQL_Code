@@ -3,12 +3,24 @@
 -- CLEAR DATABASE.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+DROP TRIGGER TRANSACTION_trg;
+/
+
+DROP SEQUENCE TRANSACTION_seq;
+/
+
 DROP TABLE TRANSACTION_;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
+/
+
+DROP TRIGGER CARD_trg;
+/
+
+DROP SEQUENCE CARD_seq;
 /
 
 DROP TABLE CARD_;
@@ -33,6 +45,12 @@ ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
 ALTER TABLE ACCOUNT_ DROP COLUMN idAccountType;
 /
 
+DROP TRIGGER ACCOUNT_trg;
+/
+
+DROP SEQUENCE ACCOUNT_seq;
+/
+
 DROP TABLE ACCOUNT_;
 /
 
@@ -51,9 +69,16 @@ DROP TABLE EMPLOYEE_;
 
 -->>>>>>>>>>>
 
+DROP TRIGGER AGENCY_trg;
+/
+
+DROP SEQUENCE AGENCY_seq;
+/
+
 DROP TABLE AGENCY_;
 /
 -->>>>>>>>>>>-------------------------------------------------------------------
+
 DROP TRIGGER LOCATION_trg;
 /
 
@@ -148,6 +173,10 @@ CREATE TABLE LOCATION_(
     country VARCHAR(45)
 );
 /
+-->>>>>>>>>>>
+
+ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
+/
 
 -->>>>>>>>>>>
 
@@ -166,9 +195,6 @@ BEGIN
   INTO :new.idLocation
   FROM dual;
 END;
-/
-
-ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -270,6 +296,25 @@ CREATE TABLE AGENCY_(
 ALTER TABLE AGENCY_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
+-->>>>>>>>>>>
+
+CREATE SEQUENCE AGENCY_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>>
+
+CREATE OR REPLACE TRIGGER AGENCY_trg
+BEFORE INSERT ON AGENCY_
+FOR EACH ROW
+BEGIN
+  SELECT AGENCY_seq.NEXTVAL
+  INTO :new.idAgency
+  FROM dual;
+END;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE EMPLOYEE_(
@@ -361,6 +406,25 @@ CREATE TABLE ACCOUNT_(
 ALTER TABLE ACCOUNT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
+-->>>>>>>>>>>
+
+CREATE SEQUENCE ACCOUNT_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>>
+
+CREATE OR REPLACE TRIGGER ACCOUNT_trg
+BEFORE INSERT ON ACCOUNT_
+FOR EACH ROW
+BEGIN
+  SELECT ACCOUNT_seq.NEXTVAL
+  INTO :new.idAccount
+  FROM dual;
+END;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE CARD_(
@@ -377,6 +441,25 @@ CREATE TABLE CARD_(
 -->>>>>>>>>>>
 
 ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>>
+
+CREATE SEQUENCE CARD_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>>
+
+CREATE OR REPLACE TRIGGER CARD_trg
+BEFORE INSERT ON CARD_
+FOR EACH ROW
+BEGIN
+  SELECT CARD_seq.NEXTVAL
+  INTO :new.idCard
+  FROM dual;
+END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -420,6 +503,25 @@ CREATE TABLE TRANSACTION_(
 -->>>>>>>>>>>
 
 ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
+/
+
+-->>>>>>>>>>>
+
+CREATE SEQUENCE TRANSACTION_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>>
+
+CREATE OR REPLACE TRIGGER TRANSACTION_trg
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+BEGIN
+  SELECT TRANSACTION_seq.NEXTVAL
+  INTO :new.idTransaction
+  FROM dual;
+END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -489,4 +591,3 @@ COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos
 dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
 e data de início da transação.';
 /
-
