@@ -702,6 +702,7 @@ INSERT ALL
     VALUES ('Cartao', 'Transacao por cartao', 0, 1)
 SELECT * FROM dual;
 
+
 -->>>>>>>>>>> AGENCY
 
 INSERT ALL
@@ -758,7 +759,6 @@ INSERT ALL
     VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal', 234567890, 1, 3)
     -- Add more INTO clauses as needed for additional accounts
 SELECT * FROM dual;
-
 
 
 -->>>>>>>>>>> CARD
