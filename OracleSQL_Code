@@ -184,9 +184,9 @@ MAXSIZE UNLIMITED;
 
 CREATE TABLE LOCATION_(
     idLocation NUMBER(9) PRIMARY KEY,
-    districtProvince VARCHAR(99),
-    country VARCHAR(45)
-);
+    districtProvince varchar(99),
+    country VARCHAR(99)
+) PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -225,7 +225,7 @@ CREATE TABLE ACCOUNTTYPE_(
      nameAccountType VARCHAR(45),
      description VARCHAR(99),
      minimumRequirements VARCHAR(99)
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -262,7 +262,7 @@ CREATE TABLE TRANSACTIONTYPE_(
      description VARCHAR(45),
      appliedRate NUMBER(3),
      LimitTransaction FLOAT
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -315,7 +315,7 @@ CREATE TABLE AGENCY_(
     idLocation NUMBER(9),
     FOREIGN KEY (idLocation) REFERENCES LOCATION_(idLocation)
     
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -359,7 +359,7 @@ CREATE TABLE EMPLOYEE_(
     salary NUMBER(20),
     idAgency NUMBER(9),
     CONSTRAINT FK_Employee_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -403,7 +403,7 @@ CREATE TABLE CLIENT_(
     passwordCLient VARCHAR(45),
     idAgency NUMBER(9),
     CONSTRAINT FK_Client_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -436,7 +436,7 @@ CREATE TABLE ACCOUNT_(
     CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif),
     CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency),
     CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)
-);
+)PARALLEL;
 /
 
 ALTER TABLE ACCOUNT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
@@ -480,10 +480,10 @@ CREATE TABLE CARD_(
     expirationDate DATE,
     pin number(4),
     CVC number(3),
-    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debito', 'Credito')),
+    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debido', 'Credito')),
     idAccount NUMBER(9),
     CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -528,7 +528,7 @@ CREATE TABLE OWNER_ (
     ownership NUMBER(1),
     CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
     CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif)
-);
+)PARALLEL;
 
 /
 
@@ -551,16 +551,16 @@ MAXSIZE UNLIMITED;
 
 CREATE TABLE TRANSACTION_(
      idTransaction NUMBER(9) PRIMARY KEY,
-     balance NUMBER(20),
+     balance VARCHAR(45),
      dateTransaction date,
-     status varchar(15) CHECK (status IN ('processando', 'concluido', 'etc')),
+     status varchar(45) CHECK (status IN ('processando', 'concluido', 'etc')),
      idCard NUMBER(9),
      idTransactionType NUMBER(9),
      idAccount NUMBER(9),
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
-    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType)   
+    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType),   
      CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
-);
+)PARALLEL;
 /
 
 -->>>>>>>>>>>
@@ -673,7 +673,7 @@ e data de início da transação.';
 -->>>>>>>>>>> LOCATION
 
 --Meter aqui--
-INSERT ALL
+INSERT /*+ APPEND */ ALL 
     INTO LOCATION_ (districtProvince, country) VALUES ('Aveiro', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Beja', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Braga', 'Portugal')
@@ -692,25 +692,28 @@ INSERT ALL
     INTO LOCATION_ (districtProvince, country) VALUES ('Viana do Castelo', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Vila Real', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Viseu', 'Portugal')
+
     -- Add more INTO clauses as needed for additional rows
 SELECT * FROM dual;
 /
 
 -->>>>>>>>>>> ACCOUNTTYPE
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta-Poupaça', 'Conta para poupar dinhero', 'null')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta à ordem', 'Não tem produtos ou serviços específicos associados.', '>=18')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta jovem', 'Conta para Jovens Adolescente', '>=18 e <=25')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta Ordenado', 'Conta para onde vai parar o seu Oerdenado', '>=18')
+
     -- Add more INTO clauses as needed for additional rows
 SELECT * FROM dual;
-
+/
 
 -->>>>>>>>>>> TRANSACTIONTYPE
 
 --Meter aqui--
-INSERT ALL
+INSERT /*+ APPEND */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
@@ -728,7 +731,8 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> AGENCY
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
     VALUES ('Agencia Solverde', '9:00 - 16:00', 3, 1)
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
@@ -743,7 +747,8 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> EMPLOYEE
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO EMPLOYEE_ (nif, nameEmployee, surname, address, age, dateBirth, iban, JobRole, salary, idAgency) 
     VALUES (123456789, 'Pedro', 'Gonçalves', AddressType('Rua Marmelo', 'Faro', 'Portugal'), 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, address, age, dateBirth, iban, JobRole, salary, idAgency) 
@@ -760,7 +765,8 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CLIENT
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
     VALUES (123456789, 'Alice', addressType('Rua Ola', 'Faro', 'Portugal'), 28, TO_DATE('1995-03-15', 'YYYY-MM-DD'), 'Engenheiro', 'CASADO', 'alice123', 1)
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
@@ -773,7 +779,8 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> ACCOUNT
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
     VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 123456789, 1, 1)
     INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
@@ -786,22 +793,22 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CARD
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debito', 1)
+    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debido', 1)
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
     VALUES (TO_DATE('2024-02-20', 'YYYY-MM-DD'), 5678, 456, 'Credito', 2)
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debito', 3)
-    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debito', 3)
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debido', 3)
     -- Add more INTO clauses as needed for additional cards
 SELECT * FROM dual;
 /
 
 -->>>>>>>>>>> OWNER
 
-INSERT ALL
+--Meter aqui--
+INSERT /*+ APPEND */ ALL
     INTO OWNER_ (idAccount, nif, ownership) 
     VALUES (1, 123456789, 1)
     INTO OWNER_ (idAccount, nif, ownership) 
@@ -814,7 +821,9 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> TRANSACTION
 
-INSERT ALL
+--Meter aqui--
+-- Inserting multiple rows into the TRANSACTION_ table
+INSERT /*+ APPEND */ ALL
     INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
     VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'concluido', 1, 1)
     INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
