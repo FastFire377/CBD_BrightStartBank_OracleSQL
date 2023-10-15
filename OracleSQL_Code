@@ -480,7 +480,7 @@ CREATE TABLE CARD_(
     expirationDate DATE,
     pin number(4),
     CVC number(3),
-    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debido', 'Credito')),
+    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debito', 'Credito')),
     idAccount NUMBER(9),
     CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
 );
@@ -788,11 +788,13 @@ SELECT * FROM dual;
 
 INSERT ALL
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debido', 1)
+    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debito', 1)
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
     VALUES (TO_DATE('2024-02-20', 'YYYY-MM-DD'), 5678, 456, 'Credito', 2)
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debido', 3)
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debito', 3)
+    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debito', 3)
     -- Add more INTO clauses as needed for additional cards
 SELECT * FROM dual;
 /
