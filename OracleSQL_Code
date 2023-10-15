@@ -562,7 +562,7 @@ CREATE TABLE TRANSACTION_(
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
     CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType),  
     CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
-    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES ACCOUNT_(idOwner)
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner)
 )PARALLEL;
 /
 
