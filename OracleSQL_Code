@@ -675,7 +675,6 @@ e data de início da transação.';
 
 -->>>>>>>>>>> LOCATION
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO LOCATION_ (districtProvince, country) VALUES ('Aveiro', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Beja', 'Portugal')
@@ -701,7 +700,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> ACCOUNTTYPE
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta-Poupaça', 'Conta para poupar dinhero', 'null')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta à ordem', 'Não tem produtos ou serviços específicos associados.', '>=18')
@@ -713,7 +711,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> TRANSACTIONTYPE
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
@@ -732,7 +729,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> AGENCY
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
     VALUES ('Agencia Solverde', '9:00 - 16:00', 3, 1)
@@ -748,7 +744,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> EMPLOYEE
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO EMPLOYEE_ (nif, nameEmployee, surname, address, age, dateBirth, iban, JobRole, salary, idAgency) 
     VALUES (123456789, 'Pedro', 'Gonçalves', AddressType('Rua Marmelo', 'Faro', 'Portugal'), 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
@@ -766,7 +761,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CLIENT
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
     VALUES (123456789, 'Alice', addressType('Rua Ola', 'Faro', 'Portugal'), 28, TO_DATE('1995-03-15', 'YYYY-MM-DD'), 'Engenheiro', 'CASADO', 'alice123', 1)
@@ -780,7 +774,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> ACCOUNT
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
     VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 123456789, 1, 1)
@@ -794,7 +787,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CARD
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
     VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debido', 1)
@@ -808,7 +800,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> OWNER
 
---Meter aqui--
 INSERT /*+ APPEND */ ALL
     INTO OWNER_ (idAccount, nif, ownership) 
     VALUES (1, 123456789, 1)
@@ -822,7 +813,6 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> TRANSACTION
 
---Meter aqui--
 -- Inserting multiple rows into the TRANSACTION_ table
 INSERT /*+ APPEND */ ALL
     INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
