@@ -118,7 +118,13 @@ DROP SEQUENCE TRANSACTIONTYPE_seq;
 
 DROP TABLE TRANSACTIONTYPE_;
 /
-
+-->>>>>>>>>>> External TABLES
+DROP TABLE EXTERNAL_CODPOSTAL;
+/
+DROP TABLE EXTERNAL_CONCELHO;
+/
+DROP TABLE EXTERNAL_DISTRITO;
+/
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 DROP TYPE AddressType;
@@ -128,7 +134,6 @@ DROP TYPE AddressType;
 
 DROP TYPE ContactType;
 /
-
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
