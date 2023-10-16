@@ -489,7 +489,7 @@ CREATE TABLE CARD_(
     expirationDate DATE,
     pin number(4),
     CVC number(3),
-    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debito', 'Credito')),
+    cardType varchar(45) CHECK (cardType IN ('Debito', 'Credito')),
     idAccount NUMBER(9),
     CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
 )PARALLEL;
