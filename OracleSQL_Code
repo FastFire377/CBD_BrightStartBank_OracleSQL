@@ -34,6 +34,15 @@ DROP TABLE CARD_;
 ALTER TABLE OWNER_ DROP COLUMN idAccount;
 /
 
+ALTER TABLE OWNER_ DROP COLUMN nif;
+/
+
+DROP TRIGGER OWNER_trg;
+/
+
+DROP SEQUENCE OWNER_seq;
+/
+
 DROP TABLE OWNER_;
 /
 
@@ -485,7 +494,7 @@ CREATE TABLE CARD_(
     expirationDate DATE,
     pin number(4),
     CVC number(3),
-    cardTYpe varchar(45) CHECK (cardTYpe IN ('Debito', 'Credito')),
+    cardType varchar(45) CHECK (cardType IN ('Debito', 'Credito')),
     idAccount NUMBER(9),
     CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
 )PARALLEL;
@@ -528,7 +537,7 @@ END;
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE OWNER_ (  
-    idOwner   NUMBER(9),     
+    idOwner NUMBER(9) PRIMARY KEY,     
     idAccount NUMBER(9),
     nif NUMBER(9), 
     ownership NUMBER(1),
@@ -541,6 +550,24 @@ CREATE TABLE OWNER_ (
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE OWNER_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER OWNER_trg
+BEFORE INSERT ON OWNER_
+FOR EACH ROW
+BEGIN
+  SELECT OWNER_seq.NEXTVAL
+  INTO :new.idOwner
+  FROM dual;
+END;
+/
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE AND TABLE TRANSACTION.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -565,9 +592,9 @@ CREATE TABLE TRANSACTION_(
      idAccount NUMBER(9),
      idOwner NUMBER(9),
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
-    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType),  
+    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType),
     CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
-    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES ACCOUNT_(idOwner)
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner)
 )PARALLEL;
 /
 
@@ -680,7 +707,7 @@ e data de início da transação.';
 
 -->>>>>>>>>>> LOCATION
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO LOCATION_ (districtProvince, country) VALUES ('Aveiro', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Beja', 'Portugal')
     INTO LOCATION_ (districtProvince, country) VALUES ('Braga', 'Portugal')
@@ -705,7 +732,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> ACCOUNTTYPE
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta-Poupaça', 'Conta para poupar dinhero', 'null')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta à ordem', 'Não tem produtos ou serviços específicos associados.', '>=18')
     INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta jovem', 'Conta para Jovens Adolescente', '>=18 e <=25')
@@ -716,7 +743,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> TRANSACTIONTYPE
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
@@ -734,7 +761,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> AGENCY
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
     VALUES ('Agencia Solverde', '9:00 - 16:00', 3, 1)
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
@@ -749,7 +776,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> EMPLOYEE
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO EMPLOYEE_ (nif, nameEmployee, surname, address, age, dateBirth, iban, JobRole, salary, idAgency) 
     VALUES (123456789, 'Pedro', 'Gonçalves', AddressType('Rua Marmelo', 'Faro', 'Portugal'), 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, address, age, dateBirth, iban, JobRole, salary, idAgency) 
@@ -766,7 +793,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CLIENT
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
     VALUES (123456789, 'Alice', addressType('Rua Ola', 'Faro', 'Portugal'), 28, TO_DATE('1995-03-15', 'YYYY-MM-DD'), 'Engenheiro', 'CASADO', 'alice123', 1)
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
@@ -779,7 +806,7 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> ACCOUNT
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
     VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 123456789, 1, 1)
     INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
@@ -792,24 +819,24 @@ SELECT * FROM dual;
 
 -->>>>>>>>>>> CARD
 
-INSERT /*+ APPEND */ ALL
-    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2025-01-15', 'YYYY-MM-DD'), 1283, 789, 'Debido', 1)
-    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2024-02-20', 'YYYY-MM-DD'), 5678, 456, 'Credito', 2)
-    INTO CARD_ (expirationDate, pin, CVC, cardTYpe, idAccount) 
-    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 9868, 123, 'Debido', 3)
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (1283, 789, 'Debito', 1)
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (5678, 456, 'Credito', 2)
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (9868, 123, 'Debito', 3)
     -- Add more INTO clauses as needed for additional cards
 SELECT * FROM dual;
 /
 
 -->>>>>>>>>>> OWNER
 
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO OWNER_ (idAccount, nif, ownership) 
     VALUES (1, 123456789, 1)
     INTO OWNER_ (idAccount, nif, ownership) 
-    VALUES (2, 987654321, 0)
+    VALUES (2, 987654321, 2)
     INTO OWNER_ (idAccount, nif, ownership) 
     VALUES (3, 234567890, 1)
     -- Add more INTO clauses as needed for additional owner records
@@ -819,7 +846,7 @@ SELECT * FROM dual;
 -->>>>>>>>>>> TRANSACTION
 
 -- Inserting multiple rows into the TRANSACTION_ table
-INSERT /*+ APPEND */ ALL
+INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
     VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'concluido', 1, 1)
     INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
