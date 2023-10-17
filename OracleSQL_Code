@@ -851,3 +851,298 @@ INSERT /*+ APPEND PARALLEL */ ALL
     -- Add more INTO clauses as needed for additional transactions
 SELECT * FROM dual;
 /
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- FUnctions.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP FUNCTION getTableName;
+/
+
+-->>>>>>>>>>> FUNCTION TO GET THE TABLE NAME
+
+CREATE OR REPLACE FUNCTION getTableName(
+        p_tableName VARCHAR
+    ) RETURN VARCHAR
+    IS
+        tableFind varchar(99);
+    BEGIN
+        -- INSTR = INSTRING
+        
+        select TABLE_NAME 
+        INTO tableFind
+        FROM user_tables 
+        WHERE INSTR(UPPER(TABLE_NAME), UPPER(p_tableName)) > 0
+        ORDER BY INSTR(UPPER(TABLE_NAME), UPPER(p_tableName)) ASC
+        FETCH FIRST 1 ROW ONLY;
+        
+        RETURN tableFind;
+    END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP FUNCTION getFieldName;
+/
+
+-->>>>>>>>>>> FUNCTION TO GET THE SPECIFIC FIELD NAME FROM TABLE
+
+CREATE OR REPLACE FUNCTION getFieldName(
+        p_tableName VARCHAR,
+        p_fieldName VARCHAR
+    ) RETURN VARCHAR
+    IS
+        fieldFind varchar(99);
+    BEGIN
+        -- INSTR = INSTRING
+        
+        select COLUMN_NAME 
+        INTO fieldFind
+        FROM ALL_TAB_COLUMNS 
+        WHERE INSTR(UPPER(TABLE_NAME), UPPER(p_tableName)) > 0 
+        AND INSTR(UPPER(COLUMN_NAME), UPPER(p_fieldName)) > 0
+        ORDER BY INSTR(UPPER(COLUMN_NAME), UPPER(p_fieldName)) ASC
+        FETCH FIRST 1 ROW ONLY;
+            
+        RETURN fieldFind;
+    END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP FUNCTION getFieldsNames;
+/
+
+-->>>>>>>>>>> FUNCTION TO GET ALL THE FIELDS NAMES FROM THE TABLE
+
+CREATE OR REPLACE FUNCTION getFieldsNames(
+        p_tableName VARCHAR
+    ) RETURN VARCHAR
+    IS
+        fieldNames varchar(200);
+    BEGIN
+        SELECT LISTAGG(column_name, ', ') WITHIN GROUP (ORDER BY column_id) as fields_names
+        INTO fieldNames
+        FROM user_tab_columns
+        WHERE table_name = p_tableName AND column_id > 1;
+            
+        RETURN fieldNames;
+    END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP FUNCTION getFieldCount;
+/
+
+-->>>>>>>>>>> FUNCTION TO GET THE NUMBER OF FIELDS IN THE TABLE
+
+CREATE OR REPLACE FUNCTION getFieldCount(
+        p_tableName VARCHAR
+    ) RETURN VARCHAR
+    IS
+        fieldNumber NUMBER;
+    BEGIN
+        SELECT COUNT(*)-1 AS column_Number into fieldNumber
+        FROM user_tab_columns
+        WHERE table_name = p_tableName;
+            
+        RETURN fieldNumber;
+    END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- PROCEDURES
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-- INSERT
+
+DROP TYPE multiObjectFunction;
+/
+
+CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
+/
+
+DROP PROCEDURE insertAll;
+/
+
+CREATE OR REPLACE PROCEDURE insertAll (
+    tableName VARCHAR,
+    v_insert multiObjectFunction
+) AS 
+BEGIN
+    DECLARE
+        v_getTable varchar(200);
+        
+        v_nField NUMBER;        
+        v_FieldNames VARCHAR(200);
+        v_values VARCHAR(200) := '';
+        
+        v_insert_query VARCHAR(200);
+    BEGIN
+        select getTableName(tableName) INTO v_getTable FROM dual;
+        
+        ------------------------------------------------------------------------
+        
+        -- Shows the number of fiels of the table
+        v_nField := getFieldCount(v_getTable);
+        
+        ------------------------------------------------------------------------
+        
+        -- shows the field of the tables
+        v_FieldNames := getFieldsNames(v_getTable);
+        
+        ------------------------------------------------------------------------
+        
+        FOR i IN 1..v_nField LOOP
+            IF i > 1 THEN
+                IF i > v_insert.count then
+                    v_values := v_values || ''', ''' || '';
+                ELSE
+                    v_values := v_values || ''', ''' || v_insert(i);
+                END IF;
+            ELSE
+                v_values := v_values || v_insert(i);
+            END IF;
+        END LOOP;
+        
+        ------------------------------------------------------------------------
+        
+        v_insert_query := 'INSERT /*+ APPEND */ INTO ' || v_getTable || ' (' || v_FieldNames || ') VALUES (''' || v_values || ''')';
+        
+        EXECUTE IMMEDIATE v_insert_query; 
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Reccord inserted');
+    END;
+EXCEPTION
+    WHEN OTHERS THEN
+       ROLLBACK;
+       DBMS_OUTPUT.PUT_LINE('Insertion Error: ' || SQLERRM);
+END;
+/
+
+-->>>>>>>>>>
+DECLARE
+    insertValues multiObjectFunction;
+BEGIN
+    insertValues := multiObjectFunction('value1', 'value2', 'value3', 'value4', 'value5');
+
+    --insertAll('locat', insertValues);
+END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP PROCEDURE UpdateAll;
+/
+
+CREATE OR REPLACE PROCEDURE UpdateAll (
+    u_tableName VARCHAR,
+    u_update multiObjectFunction,
+    u_condition multiObjectFunction
+) AS 
+BEGIN
+     DECLARE
+         v_getTable varchar(200);
+         v_getFieldUpdate varchar(200);
+         v_getFieldcondition varchar(200);
+
+         v_conditionFieldcondition varchar(200);
+         
+         v_insert_query VARCHAR(200);
+     BEGIN
+     
+        select getTableName(u_tableName) INTO v_getTable FROM dual;
+        select getFieldName(v_getTable, u_update(1)) INTO v_getFieldUpdate FROM dual;
+        select getFieldName(v_getTable, u_condition(1)) INTO v_getFieldcondition FROM dual;
+    
+        ------------------------------------------------------------------------
+        
+        IF u_condition.COUNT >= 3 THEN
+            v_conditionFieldcondition := u_condition(3);
+        ELSE
+            v_conditionFieldcondition := '=';
+        END IF;
+        
+        ------------------------------------------------------------------------
+        
+        v_insert_query := 'UPDATE ' || v_getTable  || ' SET ' || v_getFieldUpdate ||' = ''' || u_update(2) ||''' WHERE ' || v_getFieldcondition ||' ' || v_conditionFieldcondition || ' ' || u_condition(2) || '';
+        
+        ------------------------------------------------------------------------
+        
+        EXECUTE IMMEDIATE v_insert_query; 
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Reccord Updated');
+    END;
+EXCEPTION
+    WHEN OTHERS THEN
+       ROLLBACK;
+       DBMS_OUTPUT.PUT_LINE('Updating Error: ' || SQLERRM);
+END;
+/
+
+DECLARE
+    UpdateValues multiObjectFunction;
+    coditionValues multiObjectFunction;
+BEGIN
+    UpdateValues := multiObjectFunction('descri', 'testeAAAAAAA' );
+    coditionValues := multiObjectFunction('idAccountType', '3', '=');    
+    
+    --UpdateAll('ACCOUNTTYP', UpdateValues, coditionValues);
+END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP PROCEDURE delete4all;
+/
+
+CREATE OR REPLACE PROCEDURE delete4all (
+    u_tableName VARCHAR,
+    u_condition multiObjectFunction
+) AS 
+BEGIN
+     DECLARE
+         v_getTable varchar(200);
+         v_getFieldcondition varchar(200);
+         
+          v_conditionFieldcondition varchar(200);
+         
+         v_insert_query VARCHAR(200);
+     BEGIN
+        select getTableName(u_tableName) INTO v_getTable FROM dual;
+    select getFieldName(v_getTable, u_condition(1)) INTO v_getFieldcondition FROM dual;
+    
+        ------------------------------------------------------------------------
+        
+        IF u_condition.COUNT >= 3 THEN
+            v_conditionFieldcondition := u_condition(3);
+        ELSE
+            v_conditionFieldcondition := '=';
+        END IF;
+        
+        ------------------------------------------------------------------------
+        
+        v_insert_query := 'DELETE FROM ' || v_getTable  || ' WHERE ' || v_getFieldcondition ||' '|| v_conditionFieldcondition ||' ''' || u_condition(2) || '''';
+
+        ------------------------------------------------------------------------
+        
+        EXECUTE IMMEDIATE v_insert_query; 
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Reccord Deleted');
+    END;
+EXCEPTION
+    WHEN OTHERS THEN
+       ROLLBACK;
+       DBMS_OUTPUT.PUT_LINE('Deleting Error: ' || SQLERRM);
+END;
+/
+
+DECLARE
+    coditionValues multiObjectFunction;
+BEGIN
+    coditionValues := multiObjectFunction('IDACCO', '6', '=');    
+
+    --delete4all('ACCOUNTTYP', coditionValues);
+END;
+/
