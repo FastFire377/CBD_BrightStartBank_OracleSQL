@@ -1008,7 +1008,7 @@ BEGIN
         
         ------------------------------------------------------------------------
         
-        v_insert_query := 'INSERT /*+ APPEND */ INTO ' || v_getTable || ' (' || v_FieldNames || ') VALUES (''' || v_values || ''')';
+        v_insert_query := 'INSERT /*+ PARALLEL APPEND */ INTO ' || v_getTable || ' (' || v_FieldNames || ') VALUES (''' || v_values || ''')';
         
         EXECUTE IMMEDIATE v_insert_query; 
         COMMIT;
@@ -1066,7 +1066,7 @@ BEGIN
         
         ------------------------------------------------------------------------
         
-        v_insert_query := 'UPDATE ' || v_getTable  || ' SET ' || v_getFieldUpdate ||' = ''' || u_update(2) ||''' WHERE ' || v_getFieldcondition ||' ' || v_conditionFieldcondition || ' ' || u_condition(2) || '';
+        v_insert_query := 'UPDATE /*+ PARALLEL */' || v_getTable  || ' SET ' || v_getFieldUpdate ||' = ''' || u_update(2) ||''' WHERE ' || v_getFieldcondition ||' ' || v_conditionFieldcondition || ' ' || u_condition(2) || '';
         
         ------------------------------------------------------------------------
         
@@ -1123,7 +1123,7 @@ BEGIN
         
         ------------------------------------------------------------------------
         
-        v_insert_query := 'DELETE FROM ' || v_getTable  || ' WHERE ' || v_getFieldcondition ||' '|| v_conditionFieldcondition ||' ''' || u_condition(2) || '''';
+        v_insert_query := 'DELETE /*+ PARALLEL */ FROM ' || v_getTable  || ' WHERE ' || v_getFieldcondition ||' '|| v_conditionFieldcondition ||' ''' || u_condition(2) || '''';
 
         ------------------------------------------------------------------------
         
