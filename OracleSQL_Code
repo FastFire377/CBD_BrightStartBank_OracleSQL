@@ -245,8 +245,6 @@ ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 
 -->>>>>>>>>>> INDEX
 
-
-
 CREATE INDEX idx_country_location ON LOCATION_(country);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -286,8 +284,6 @@ END;
 /
 
 -->>>>>>>>>>> INDEX
-
-
 
 CREATE INDEX idx_id_name_account_type ON ACCOUNTTYPE_(nameAccountType);
 
@@ -330,8 +326,6 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-
-
 CREATE INDEX idx_id_name_transaction_type ON TRANSACTIONTYPE_(nameTransactionType);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -364,8 +358,6 @@ CREATE TABLE AGENCY_(
 /
 
 -->>>>>>>>>>> INDEX
-
-
 
 CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
 
@@ -418,8 +410,6 @@ CREATE TABLE EMPLOYEE_(
 ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 -->>>>>>>>>>> INDEX
-
-
 
 CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
 
@@ -485,8 +475,6 @@ BEGIN
 
 -->>>>>>>>>>> INDEX
 
-
-
 CREATE INDEX idx_nameClient ON CLIENT_(nameClient);
 
 CREATE INDEX idx_ClientidAgency ON CLIENT_(idAgency);
@@ -542,12 +530,6 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-
-
-
-
-
-
 CREATE INDEX idx_idAccountType ON ACCOUNT_(idAccountType);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -601,8 +583,6 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-
-
 CREATE INDEX idx_idAccount ON CARD_(idAccount);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -640,8 +620,6 @@ END;
 /
 
 -->>>>>>>>>>> INDEX
-
-
 
 CREATE INDEX idx_Owner_idAccount ON OWNER_(idAccount);
 
@@ -712,8 +690,6 @@ END;
 /
 
 -->>>>>>>>>>> INDEX
-
-
 
 CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
 
