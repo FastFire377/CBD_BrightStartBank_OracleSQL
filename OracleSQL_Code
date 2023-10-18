@@ -3,6 +3,17 @@
 -- CLEAR DATABASE.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+DROP PROCEDURE SP_ALL_INSERT;
+/
+
+DROP PROCEDURE SP_ALL_UPDATE;
+/
+
+DROP PROCEDURE SP_ALL_DELETE;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
 DROP TRIGGER TRANSACTION_trg;
 /
 
@@ -138,6 +149,11 @@ DROP TYPE AddressType;
 DROP TYPE ContactType;
 /
 
+-->>>>>>>>>>>
+
+DROP TYPE multiObjectFunction;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
@@ -175,6 +191,13 @@ CREATE TYPE ContactType AS OBJECT (
     Contact NUMBER(9),
     email VARCHAR(99)
 );
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE (Array)
+
+CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -225,6 +248,12 @@ END;
 ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 /
 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_location ON LOCATION_(idLocation);
+
+CREATE INDEX idx_country_location ON LOCATION_(country);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 -->>>>>>>>>>> CREATE TABLE 
@@ -260,6 +289,12 @@ BEGIN
   FROM dual;
 END;
 /
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_account_type ON ACCOUNTTYPE_(idAccountType);
+
+CREATE INDEX idx_id_name_account_type ON ACCOUNTTYPE_(nameAccountType);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -298,6 +333,12 @@ BEGIN
 END;
 /
 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_transaction_type ON TRANSACTIONTYPE_(idTransactionType);
+
+CREATE INDEX idx_id_name_transaction_type ON TRANSACTIONTYPE_(nameTransactionType);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE NORMALS AND TABLES AGENCY, EMPLOYEE, CLIENT, ACCOUNT AND CARD.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -322,10 +363,16 @@ CREATE TABLE AGENCY_(
     Contact ContactType,
     --forein keyss
     idLocation NUMBER(9),
-    FOREIGN KEY (idLocation) REFERENCES LOCATION_(idLocation)
+    FOREIGN KEY (idLocation) REFERENCES LOCATION_(idLocation) ON DELETE SET NULL
     
 )PARALLEL;
 /
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_agency ON AGENCY_(idAgency);
+
+CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
 
 -->>>>>>>>>>>
 
@@ -367,7 +414,7 @@ CREATE TABLE EMPLOYEE_(
     JobRole VARCHAR(45),
     salary NUMBER(20),
     idAgency NUMBER(9),
-    CONSTRAINT FK_Employee_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
+    CONSTRAINT FK_Employee_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL
 )PARALLEL;
 /
 
@@ -375,6 +422,17 @@ CREATE TABLE EMPLOYEE_(
 
 ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_nif ON EMPLOYEE_(nif);
+
+CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
+
+CREATE INDEX idx_surname ON EMPLOYEE_(surname);
+
+CREATE INDEX idx_iban ON EMPLOYEE_(iban);
+
+CREATE INDEX idx_idAgency ON EMPLOYEE_(idAgency);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -411,7 +469,7 @@ CREATE TABLE CLIENT_(
     maritalStatus VARCHAR(50) CHECK (maritalStatus IN ('SOLTEIRO', 'CASADO')),
     passwordCLient VARCHAR(45),
     idAgency NUMBER(9),
-    CONSTRAINT FK_Client_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
+    CONSTRAINT FK_Client_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL
 )PARALLEL;
 /
 
@@ -430,6 +488,14 @@ BEGIN
     END;
 /
 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_nif ON CLIENT_(nif);
+
+CREATE INDEX idx_nameClient ON CLIENT_(nameClient);
+
+CREATE INDEX idx_idAgency ON CLIENT_(idAgency);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 -->>>>>>>>>>> CREATE TABLE
@@ -442,9 +508,9 @@ CREATE TABLE ACCOUNT_(
     nif NUMBER(9),
     idAgency NUMBER(9),
     idAccountType NUMBER(9),    
-    CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif),
-    CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency),
-    CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)
+    CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
+    CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL,
+    CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType) ON DELETE SET NULL
 )PARALLEL;
 /
 
@@ -480,6 +546,16 @@ BEGIN
 END;
 /
 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idAccount ON ACCOUNT_(idAccount);
+
+CREATE INDEX idx_nif ON ACCOUNT_(nif);
+
+CREATE INDEX idx_idAgency ON ACCOUNT_(idAgency);
+
+CREATE INDEX idx_idAccountType ON ACCOUNT_(idAccountType);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 -->>>>>>>>>>> CREATE TABLE
@@ -491,7 +567,7 @@ CREATE TABLE CARD_(
     CVC number(3),
     cardType varchar(45) CHECK (cardType IN ('Debito', 'Credito')),
     idAccount NUMBER(9),
-    CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount)
+    CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL
 )PARALLEL;
 /
 
@@ -529,6 +605,12 @@ BEGIN
 END;
 /
 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idCard ON CARD_(idCard);
+
+CREATE INDEX idx_idAccountType ON CARD_(idAccountType);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE OWNER_ (  
@@ -536,10 +618,9 @@ CREATE TABLE OWNER_ (
     idAccount NUMBER(9),
     nif NUMBER(9), 
     ownership NUMBER(1),
-    CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
-    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif)
+    CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL
 )PARALLEL;
-
 /
 
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
@@ -563,6 +644,15 @@ BEGIN
   FROM dual;
 END;
 /
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idOwner ON OWNER_(idOwner);
+
+CREATE INDEX idx_idAccount ON OWNER_(idAccount);
+
+CREATE INDEX idx_nif ON OWNER_(nif);
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE AND TABLE TRANSACTION.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -586,10 +676,10 @@ CREATE TABLE TRANSACTION_(
      idTransactionType NUMBER(9),
      idAccount NUMBER(9),
      idOwner NUMBER(9),
-    CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard),
-    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType),
-    CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount),
-    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner)
+    CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard) ON DELETE SET NULL,
+    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType) ON DELETE SET NULL,
+    CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL
 )PARALLEL;
 /
 
@@ -625,6 +715,18 @@ BEGIN
   :new.dateTransaction := SYSDATE;
 END;
 /
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idTransaction ON TRANSACTION_(idTransaction);
+
+CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
+
+CREATE INDEX idx_idTransactionType ON TRANSACTION_(idTransactionType);
+
+CREATE INDEX idx_idAccount ON TRANSACTION_(idAccount);
+
+CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- COMMENTS.
@@ -955,18 +1057,9 @@ CREATE OR REPLACE FUNCTION getFieldCount(
 -- PROCEDURES
 -->>>>>>>>>>>-------------------------------------------------------------------
 
--- INSERT
+-- INSERT 4 ALL
 
-DROP TYPE multiObjectFunction;
-/
-
-CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
-/
-
-DROP PROCEDURE insertAll;
-/
-
-CREATE OR REPLACE PROCEDURE insertAll (
+CREATE OR REPLACE PROCEDURE SP_ALL_INSERT (
     tableName VARCHAR,
     v_insert multiObjectFunction
 ) AS 
@@ -1022,21 +1115,21 @@ END;
 /
 
 -->>>>>>>>>>
+
 DECLARE
     insertValues multiObjectFunction;
 BEGIN
     insertValues := multiObjectFunction('value1', 'value2', 'value3', 'value4', 'value5');
 
-    --insertAll('locat', insertValues);
+    --SP_ALL_INSERT('locat', insertValues);
 END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
-DROP PROCEDURE UpdateAll;
-/
+-- UPDATE 4 ALL
 
-CREATE OR REPLACE PROCEDURE UpdateAll (
+CREATE OR REPLACE PROCEDURE SP_ALL_UPDATE (
     u_tableName VARCHAR,
     u_update multiObjectFunction,
     u_condition multiObjectFunction
@@ -1081,6 +1174,8 @@ EXCEPTION
 END;
 /
 
+-->>>>>>>>>>>
+
 DECLARE
     UpdateValues multiObjectFunction;
     coditionValues multiObjectFunction;
@@ -1088,16 +1183,15 @@ BEGIN
     UpdateValues := multiObjectFunction('descri', 'testeAAAAAAA' );
     coditionValues := multiObjectFunction('idAccountType', '3', '=');    
     
-    --UpdateAll('ACCOUNTTYP', UpdateValues, coditionValues);
+    --SP_ALL_UPDATE('ACCOUNTTYP', UpdateValues, coditionValues);
 END;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
-DROP PROCEDURE delete4all;
-/
+-- DELETE 4 ALL
 
-CREATE OR REPLACE PROCEDURE delete4all (
+CREATE OR REPLACE PROCEDURE SP_ALL_DELETE (
     u_tableName VARCHAR,
     u_condition multiObjectFunction
 ) AS 
@@ -1138,11 +1232,13 @@ EXCEPTION
 END;
 /
 
+-->>>>>>>>>>>
+
 DECLARE
     coditionValues multiObjectFunction;
 BEGIN
     coditionValues := multiObjectFunction('IDACCO', '6', '=');    
 
-    --delete4all('ACCOUNTTYP', coditionValues);
+    --SP_ALL_DELETE('ACCOUNTTYP', coditionValues);
 END;
 /
