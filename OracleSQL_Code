@@ -245,7 +245,7 @@ ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_id_location ON LOCATION_(idLocation);
+
 
 CREATE INDEX idx_country_location ON LOCATION_(country);
 
@@ -287,7 +287,7 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_id_account_type ON ACCOUNTTYPE_(idAccountType);
+
 
 CREATE INDEX idx_id_name_account_type ON ACCOUNTTYPE_(nameAccountType);
 
@@ -330,7 +330,7 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_id_transaction_type ON TRANSACTIONTYPE_(idTransactionType);
+
 
 CREATE INDEX idx_id_name_transaction_type ON TRANSACTIONTYPE_(nameTransactionType);
 
@@ -365,7 +365,7 @@ CREATE TABLE AGENCY_(
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_id_agency ON AGENCY_(idAgency);
+
 
 CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
 
@@ -419,7 +419,7 @@ ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_nif ON EMPLOYEE_(nif);
+
 
 CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
 
@@ -485,11 +485,11 @@ BEGIN
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_nif ON CLIENT_(nif);
+
 
 CREATE INDEX idx_nameClient ON CLIENT_(nameClient);
 
-CREATE INDEX idx_idAgency ON CLIENT_(idAgency);
+CREATE INDEX idx_ClientidAgency ON CLIENT_(idAgency);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -542,11 +542,11 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_idAccount ON ACCOUNT_(idAccount);
 
-CREATE INDEX idx_nif ON ACCOUNT_(nif);
 
-CREATE INDEX idx_idAgency ON ACCOUNT_(idAgency);
+
+
+
 
 CREATE INDEX idx_idAccountType ON ACCOUNT_(idAccountType);
 
@@ -601,9 +601,9 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_idCard ON CARD_(idCard);
 
-CREATE INDEX idx_idAccountType ON CARD_(idAccountType);
+
+CREATE INDEX idx_idAccount ON CARD_(idAccount);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -641,9 +641,9 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_idOwner ON OWNER_(idOwner);
 
-CREATE INDEX idx_idAccount ON OWNER_(idAccount);
+
+CREATE INDEX idx_Owner_idAccount ON OWNER_(idAccount);
 
 CREATE INDEX idx_nif ON OWNER_(nif);
 
@@ -713,13 +713,13 @@ END;
 
 -->>>>>>>>>>> INDEX
 
-CREATE INDEX idx_idTransaction ON TRANSACTION_(idTransaction);
+
 
 CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
 
 CREATE INDEX idx_idTransactionType ON TRANSACTION_(idTransactionType);
 
-CREATE INDEX idx_idAccount ON TRANSACTION_(idAccount);
+CREATE INDEX idx_Transaction_idAccount ON TRANSACTION_(idAccount);
 
 CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
 
