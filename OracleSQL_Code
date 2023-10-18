@@ -59,9 +59,6 @@ DROP TABLE OWNER_;
 
 -->>>>>>>>>>>
 
-ALTER TABLE ACCOUNT_ DROP COLUMN nif;
-/
-
 ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
 /
 
@@ -148,12 +145,15 @@ DROP TYPE AddressType;
 
 DROP TYPE ContactType;
 /
+<<<<<<< HEAD
 
 -->>>>>>>>>>>
 
 DROP TYPE multiObjectFunction;
 /
 
+=======
+>>>>>>> Pimenta
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
@@ -469,7 +469,11 @@ CREATE TABLE CLIENT_(
     maritalStatus VARCHAR(50) CHECK (maritalStatus IN ('SOLTEIRO', 'CASADO')),
     passwordCLient VARCHAR(45),
     idAgency NUMBER(9),
+<<<<<<< HEAD
     CONSTRAINT FK_Client_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL
+=======
+    CONSTRAINT FK_Client_Agency FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)
+>>>>>>> Pimenta
 )PARALLEL;
 /
 
@@ -503,14 +507,18 @@ CREATE INDEX idx_idAgency ON CLIENT_(idAgency);
 CREATE TABLE ACCOUNT_(
     idAccount NUMBER(9) PRIMARY KEY,
     creationDate DATE,
-    balance float,
+    balance NUMBER(12,2),
     status varchar(45) CHECK (status IN ('congelada', 'normal', 'etc')),
-    nif NUMBER(9),
     idAgency NUMBER(9),
     idAccountType NUMBER(9),    
+<<<<<<< HEAD
     CONSTRAINT FK_ClientAccount FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
     CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL,
     CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType) ON DELETE SET NULL
+=======
+    CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency),
+    CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)
+>>>>>>> Pimenta
 )PARALLEL;
 /
 
@@ -668,10 +676,10 @@ MAXSIZE UNLIMITED;
 -->>>>>>>>>>> CREATE TABLE
 
 CREATE TABLE TRANSACTION_(
-     idTransaction NUMBER(9) PRIMARY KEY,
-     balance VARCHAR(45),
+     idTransaction NUMBER(10) PRIMARY KEY,
+     amount NUMBER(12,2),
      dateTransaction date,
-     status varchar(45) CHECK (status IN ('processando', 'concluido', 'etc')),
+     status varchar(11) CHECK (status IN ('processando', 'concluido', 'etc')),
      idCard NUMBER(9),
      idTransactionType NUMBER(9),
      idAccount NUMBER(9),
@@ -797,6 +805,11 @@ COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos
 dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
 e data de início da transação.';
 /
+-->>>>>>>>>>> OWNER
+COMMENT ON TABLE OWNER_ IS 'Esta tabela destina-se ao armazenamento dos
+ dados sobre os proprietários das contas, incluindo informações sobre a 
+ relação de propriedade, associada ao número de identificação fiscal (NIF).';
+ /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- INSERTS.
@@ -904,12 +917,12 @@ SELECT * FROM dual;
 -->>>>>>>>>>> ACCOUNT
 
 INSERT /*+ APPEND PARALLEL */ ALL
-    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
-    VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 123456789, 1, 1)
-    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
-    VALUES (TO_DATE('2023-02-20', 'YYYY-MM-DD'), 7000.00, 'congelada', 987654321, 2, 2)
-    INTO ACCOUNT_ (creationDate, balance, status, nif, idAgency, idAccountType) 
-    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal', 234567890, 1, 3)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 1, 1)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-02-20', 'YYYY-MM-DD'), 7000.00, 'congelada',2, 2)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal',1, 3)
     -- Add more INTO clauses as needed for additional accounts
 SELECT * FROM dual;
 /
@@ -944,11 +957,11 @@ SELECT * FROM dual;
 
 -- Inserting multiple rows into the TRANSACTION_ table
 INSERT /*+ APPEND PARALLEL */ ALL
-    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    INTO TRANSACTION_ (amount, dateTransaction, status, idCard, idTransactionType) 
     VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'concluido', 1, 1)
-    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    INTO TRANSACTION_ (amount, dateTransaction, status, idCard, idTransactionType) 
     VALUES ('50.00', TO_DATE('2023-02-20', 'YYYY-MM-DD'), 'processando', 2, 2)
-    INTO TRANSACTION_ (balance, dateTransaction, status, idCard, idTransactionType) 
+    INTO TRANSACTION_ (amount, dateTransaction, status, idCard, idTransactionType) 
     VALUES ('200.00', TO_DATE('2023-03-10', 'YYYY-MM-DD'), 'concluido', 3, 3)
     -- Add more INTO clauses as needed for additional transactions
 SELECT * FROM dual;
