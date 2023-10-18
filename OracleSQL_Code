@@ -944,12 +944,12 @@ SELECT * FROM dual;
 
 -- Inserting multiple rows into the TRANSACTION_ table
 INSERT /*+ APPEND PARALLEL */ ALL
-    INTO TRANSACTION_ (amount, dateTransaction, nameTransaction,status, idCard, idTransactionType) 
-    VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'),'salario' ,'concluido', 1, 1)
-    INTO TRANSACTION_ (amount, dateTransaction, nameTransaction,status, idCard, idTransactionType) 
-    VALUES ('50.00', TO_DATE('2023-02-20', 'YYYY-MM-DD'),'salario','processando', 2, 2)
-    INTO TRANSACTION_ (amount, dateTransaction, status, nameTransaction,idCard, idTransactionType) 
-    VALUES ('200.00', TO_DATE('2023-03-10', 'YYYY-MM-DD'),'salario','concluido', 3, 3)
+    INTO TRANSACTION_ (amount, dateTransaction, status, nameTransaction, idCard, idTransactionType) 
+    VALUES ('100.00', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'concluido', 'salario', 1, 1)
+    INTO TRANSACTION_ (amount, dateTransaction, status, nameTransaction, idCard, idTransactionType) 
+    VALUES ('50.00', TO_DATE('2023-02-20', 'YYYY-MM-DD'), 'processando', 'salario', 2, 2)
+    INTO TRANSACTION_ (amount, dateTransaction, status, nameTransaction, idCard, idTransactionType) 
+    VALUES ('200.00', TO_DATE('2023-03-10', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 3)
     -- Add more INTO clauses as needed for additional transactions
 SELECT * FROM dual;
 /
