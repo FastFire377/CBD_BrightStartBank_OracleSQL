@@ -723,7 +723,7 @@ as '/home/oracle/src/location_files'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS
 -->>>>>>>>>>> TRANSACTION NAME
 CREATE TABLE TRANSACTIONNAME_EXT
 (
-    id_district NUMBER (25),
+    id_transaction_name NUMBER (9),
     TransactionName VARCHAR(45)
 )
 ORGANIZATION EXTERNAL(
