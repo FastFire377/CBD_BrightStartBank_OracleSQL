@@ -55,9 +55,6 @@ DROP TABLE CARD_;
 
 -->>>>>>>>>>>
 
-ALTER TABLE OWNER_ DROP COLUMN idAccount;
-/
-
 ALTER TABLE OWNER_ DROP COLUMN nif;
 /
 
@@ -602,15 +599,15 @@ CREATE INDEX idx_idAccount ON CARD_(idAccount);
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE OWNER_ (  
-    idOwner NUMBER(9) PRIMARY KEY,     
+    idOwner NUMBER(9) PRIMARY KEY,
     idAccount NUMBER(9),
     nif NUMBER(9), 
-    ownership NUMBER(1),
+    ownership NUMBER(1) CHECK (ownership IN (1, 2)), -- 1 for main owner, 2 for secondary owner
     CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
-    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL
-)PARALLEL;
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
+    CONSTRAINT UQ_MainOwner UNIQUE (idAccount, ownership) -- Unique constraint to ensure only one main owner per account
+) PARALLEL;
 /
-
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
