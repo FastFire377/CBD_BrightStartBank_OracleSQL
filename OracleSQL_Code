@@ -706,21 +706,26 @@ END;
 -->>>>>>>>>>> INDEX
 
 CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
+/
 
 CREATE INDEX idx_idTransactionType ON TRANSACTION_(idTransactionType);
+/
 
 CREATE INDEX idx_Transaction_idAccount ON TRANSACTION_(idAccount);
+/
 
 CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
-
+/
 
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- EXTERNAL TABLES
 -->>>>>>>>>>>-------------------------------------------------------------------
 --DIRECTORY FOR EXTERNAL TABLES
-CREATE OR REPLACE DIRECTORY Location_Directory 
-as '/home/oracle/src/location_files'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY Location_Directory  as ''/home/oracle/src/location_files'''; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
 
 -->>>>>>>>>>> TRANSACTION NAME
 CREATE TABLE TRANSACTIONNAME_EXT
@@ -808,25 +813,30 @@ FROM
 ORDER BY
     d.id_district;
     
-    
-SELECT * FROM unique_district_mview;
+BEGIN
+    EXECUTE IMMEDIATE 'SELECT * FROM unique_district_mview'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
 
 -->>>>>>>>>>>>>>transaction_name_mview
-CREATE MATERIALIZED VIEW transaction_name_mview
-TABLESPACE STATIC_TABLE_SPACE
-BUILD IMMEDIATE
-REFRESH COMPLETE
-AS
+BEGIN
+    EXECUTE IMMEDIATE '
+CREATE MATERIALIZED VIEW transaction_name_mview 
+TABLESPACE STATIC_TABLE_SPACE 
+BUILD IMMEDIATE 
+REFRESH COMPLETE 
+AS 
 SELECT 
-    d.name AS district_name,
-    m.municipality_name,
-    p.id_postcode,
-    p.city
-FROM
-    DISTRICT_EXT d
-    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district
-    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality
-
+    d.name AS district_name, 
+    m.municipality_name, 
+    p.id_postcode, 
+    p.city 
+FROM 
+    DISTRICT_EXT d 
+    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district 
+    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality';
+END;
+/
 --SELECT * FROM all_mviews; --Para ver todas as Materialized views
 
 -->>>>>>>>>>>-------------------------------------------------------------------
