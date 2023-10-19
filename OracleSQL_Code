@@ -1439,3 +1439,92 @@ BEGIN
     --SP_ALL_DELETE('ACCOUNTTYP', coditionValues);
 END;
 /
+
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- EXTERNAL TABLES
+-->>>>>>>>>>>-------------------------------------------------------------------
+--DIRECTORY FOR EXTERNAL TABLES
+CREATE OR REPLACE DIRECTORY Location_Directory 
+as '/home/oracle/src/location_files'; -- MUDAR CONFORME ONDE ESTÃO OS EXCELS
+
+--
+CREATE TABLE DISTRICT_EXT
+(
+    id_district NUMBER (25),
+    name VARCHAR(25)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('DISTRICT.csv')
+);
+
+CREATE TABLE MUNICIPALITY_EXT
+(
+    id_district NUMBER (25),
+    id_municipality NUMBER(25),
+    municipality_name VARCHAR(45)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('MUNICIPALITY.csv')
+);
+
+CREATE TABLE POSTCODE_EXT
+(
+    id_district NUMBER (25),
+    id_municipality NUMBER(25),
+    id_postcode NUMBER(25),
+    city VARCHAR(45)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('POSTCODE.csv')
+);
+
+
+CREATE MATERIALIZED VIEW unique_district_mview
+TABLESPACE STATIC_TABLE_SPACE
+BUILD IMMEDIATE
+REFRESH COMPLETE
+AS
+SELECT 
+    d.name AS district_name,
+    m.municipality_name,
+    p.id_postcode,
+    p.city
+FROM
+    DISTRICT_EXT d
+    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district
+    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality
+ORDER BY
+    d.id_district;
+    
+    
+SELECT * FROM unique_district_mview;
+DROP TABLE DISTRICT_EXT;
+DROP TABLE MUNICIPALITY_EXT;
+DROP TABLE POSTCODE_EXT;
+DROP MATERIALIZED VIEW unique_district_mview;
+
+
+
+--SELECT * FROM all_mviews; --Para ver todas as Materialized views
