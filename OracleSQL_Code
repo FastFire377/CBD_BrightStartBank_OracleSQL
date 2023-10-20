@@ -31,11 +31,21 @@ DROP TABLE MUNICIPALITY_EXT;
 
 DROP TABLE POSTCODE_EXT;
 /
+
 DROP TABLE TRANSACTIONNAME_EXT;
 /
+
 DROP MATERIALIZED VIEW unique_district_mview;
 /
 
+DROP MATERIALIZED VIEW transaction_name_mview;
+/
+DROP MATERIALIZED VIEW MV_ACCOUNT_OWNER;
+/
+DROP  MATERIALIZED VIEW MV_AGENCY;
+/
+DROP  MATERIALIZED VIEW MV_CARD_TRANSACTION
+/
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
@@ -604,8 +614,9 @@ CREATE TABLE OWNER_ (
     nif NUMBER(9), 
     ownership NUMBER(1) CHECK (ownership IN (1, 2)), -- 1 for main owner, 2 for secondary owner
     CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
-    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL
-)PARALLEL;
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
+    CONSTRAINT UQ_MainOwner UNIQUE (idAccount, ownership) -- Unique constraint to ensure only one main owner per account
+) PARALLEL;
 /
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
@@ -647,129 +658,6 @@ MAXSIZE UNLIMITED;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
-/
-
-
--->>>>>>>>>>>-------------------------------------------------------------------
--- EXTERNAL TABLES
--->>>>>>>>>>>-------------------------------------------------------------------
---DIRECTORY FOR EXTERNAL TABLES
-BEGIN
-    EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY Location_Directory  as ''/home/oracle/src/location_files'''; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
-END;
-/
-
--->>>>>>>>>>> TRANSACTION NAME
-CREATE TABLE TRANSACTIONNAME_EXT
-(
-    id_transaction_name NUMBER (9),
-    TransactionName VARCHAR(45)
-)
-ORGANIZATION EXTERNAL(
-TYPE ORACLE_LOADER
-DEFAULT DIRECTORY Location_Directory
-Access parameters (
-RECORDS DELIMITED BY NEWLINE
-FIELDS TERMINATED BY ';'
-)
-LOCATION('TransactionNames.csv')
-);
-
--->>>>>>>>>>> DISTRITO
-CREATE TABLE DISTRICT_EXT
-(
-    id_district NUMBER (25),
-    name VARCHAR(25)
-
-)
-ORGANIZATION EXTERNAL(
-TYPE ORACLE_LOADER
-DEFAULT DIRECTORY Location_Directory
-Access parameters (
-RECORDS DELIMITED BY NEWLINE
-FIELDS TERMINATED BY ';'
-)
-LOCATION('DISTRICT.csv')
-);
--->>>>>>>>>>>>>MUNICIPIO
-CREATE TABLE MUNICIPALITY_EXT
-(
-    id_district NUMBER (25),
-    id_municipality NUMBER(25),
-    municipality_name VARCHAR(45)
-
-)
-ORGANIZATION EXTERNAL(
-TYPE ORACLE_LOADER
-DEFAULT DIRECTORY Location_Directory
-Access parameters (
-RECORDS DELIMITED BY NEWLINE
-FIELDS TERMINATED BY ';'
-)
-LOCATION('MUNICIPALITY.csv')
-);
--->>>>>>>>>>>>>>>>>CODIGO POSTAL
-CREATE TABLE POSTCODE_EXT
-(
-    id_district NUMBER (25),
-    id_municipality NUMBER(25),
-    id_postcode NUMBER(25),
-    city VARCHAR(45)
-
-)
-ORGANIZATION EXTERNAL(
-TYPE ORACLE_LOADER
-DEFAULT DIRECTORY Location_Directory
-Access parameters (
-RECORDS DELIMITED BY NEWLINE
-FIELDS TERMINATED BY ';'
-)
-LOCATION('POSTCODE.csv')
-);
-
--->>>>>>>>>>>>>>>>unique_district_mview
-CREATE MATERIALIZED VIEW unique_district_mview
-TABLESPACE STATIC_TABLE_SPACE
-BUILD IMMEDIATE
-REFRESH COMPLETE
-AS
-SELECT 
-    d.name AS district_name,
-    m.municipality_name,
-    p.id_postcode,
-    p.city
-FROM
-    DISTRICT_EXT d
-    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district
-    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality
-ORDER BY
-    d.id_district;
-
-BEGIN
-    EXECUTE IMMEDIATE 'SELECT * FROM unique_district_mview'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
-END;
-/
-
--->>>>>>>>>>>>>>transaction_name_mview
-BEGIN
-    EXECUTE IMMEDIATE '
-CREATE MATERIALIZED VIEW transaction_name_mview 
-TABLESPACE STATIC_TABLE_SPACE 
-BUILD IMMEDIATE 
-REFRESH COMPLETE 
-AS 
-SELECT 
-    d.name AS district_name, 
-    m.municipality_name, 
-    p.id_postcode, 
-    p.city 
-FROM 
-    DISTRICT_EXT d 
-    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district 
-    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality';
-END;
-/
---SELECT * FROM all_mviews; --Para ver todas as Materialized views
 -->>>>>>>>>>> CREATE TABLE
 
 CREATE TABLE TRANSACTION_(
@@ -913,6 +801,33 @@ FIELDS TERMINATED BY ';'
 )
 LOCATION('POSTCODE.csv')
 );
+
+CREATE MATERIALIZED VIEW MV_AGENCY
+TABLESPACE STATIC_TABLE_SPACE
+BUILD IMMEDIATE
+REFRESH COMPLETE
+AS
+SELECT idAgency, nameAgency, openingHours, NEmployees, Contact, idLocation
+FROM AGENCY_;
+----
+CREATE MATERIALIZED VIEW MV_ACCOUNT_OWNER
+TABLESPACE NORMALS_TABLE_SPACE
+BUILD IMMEDIATE
+REFRESH COMPLETE
+AS
+SELECT A.idAccount, A.creationDate, A.balance, A.status, A.idAgency, A.idAccountType, O.nif as owner_nif
+FROM ACCOUNT_ A
+LEFT JOIN OWNER_ O ON A.idAccount = O.idAccount;
+
+----
+CREATE MATERIALIZED VIEW MV_CARD_TRANSACTION
+TABLESPACE TRANSACTION_TABLE_SPACE
+BUILD IMMEDIATE
+REFRESH COMPLETE
+AS
+SELECT C.idCard, C.expirationDate, C.cardType, T.idTransaction, T.amount, T.dateTransaction
+FROM CARD_ C
+LEFT JOIN TRANSACTION_ T ON C.idCard = T.idCard;
 
 -->>>>>>>>>>>>>>>>unique_district_mview
 CREATE MATERIALIZED VIEW unique_district_mview
@@ -1431,8 +1346,6 @@ SELECT
 FROM TRANSACTION_
 WHERE status = 'concluido';
 /
-
-
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- FUnctions.
