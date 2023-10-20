@@ -22,6 +22,20 @@ DROP SEQUENCE TRANSACTION_seq;
 DROP TABLE TRANSACTION_;
 /
 
+-->>>>>>>>>---------------------------------------------------------------------
+DROP TABLE DISTRICT_EXT;
+/
+
+DROP TABLE MUNICIPALITY_EXT;
+/
+
+DROP TABLE POSTCODE_EXT;
+/
+DROP TABLE TRANSACTIONNAME_EXT;
+/
+DROP MATERIALIZED VIEW unique_district_mview;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
@@ -585,15 +599,15 @@ CREATE INDEX idx_idAccount ON CARD_(idAccount);
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 CREATE TABLE OWNER_ (  
-    idOwner NUMBER(9) PRIMARY KEY,     
+    idOwner NUMBER(9) PRIMARY KEY,
     idAccount NUMBER(9),
     nif NUMBER(9), 
-    ownership NUMBER(1),
+    ownership NUMBER(1) CHECK (ownership IN (1, 2)), -- 1 for main owner, 2 for secondary owner
     CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
-    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL
-)PARALLEL;
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
+    CONSTRAINT UQ_MainOwner UNIQUE (idAccount, ownership) -- Unique constraint to ensure only one main owner per account
+) PARALLEL;
 /
-
 ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
 
@@ -689,21 +703,26 @@ END;
 -->>>>>>>>>>> INDEX
 
 CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
+/
 
 CREATE INDEX idx_idTransactionType ON TRANSACTION_(idTransactionType);
+/
 
 CREATE INDEX idx_Transaction_idAccount ON TRANSACTION_(idAccount);
+/
 
 CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
-
+/
 
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- EXTERNAL TABLES
 -->>>>>>>>>>>-------------------------------------------------------------------
 --DIRECTORY FOR EXTERNAL TABLES
-CREATE OR REPLACE DIRECTORY Location_Directory 
-as '/home/oracle/src/location_files'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY Location_Directory  as ''/home/oracle/src/location_files'''; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
 
 -->>>>>>>>>>> TRANSACTION NAME
 CREATE TABLE TRANSACTIONNAME_EXT
@@ -791,20 +810,31 @@ FROM
 ORDER BY
     d.id_district;
     
-    
-SELECT * FROM unique_district_mview;
+BEGIN
+    EXECUTE IMMEDIATE 'SELECT * FROM unique_district_mview'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
 
 -->>>>>>>>>>>>>>transaction_name_mview
-CREATE MATERIALIZED VIEW Transaction_name_mview
-TABLESPACE STATIC_TABLE_SPACE
-BUILD IMMEDIATE
-REFRESH COMPLETE
-AS
+BEGIN
+    EXECUTE IMMEDIATE '
+CREATE MATERIALIZED VIEW transaction_name_mview 
+TABLESPACE STATIC_TABLE_SPACE 
+BUILD IMMEDIATE 
+REFRESH COMPLETE 
+AS 
 SELECT 
-    TransactionName,
-    id_transaction_name
-FROM TRANSACTIONNAME_EXT;
+    d.name AS district_name, 
+    m.municipality_name, 
+    p.id_postcode, 
+    p.city 
+FROM 
+    DISTRICT_EXT d 
+    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district 
+    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality';
+END;
 /
+--SELECT * FROM all_mviews; --Para ver todas as Materialized views
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- COMMENTS.
@@ -926,25 +956,17 @@ SELECT * FROM dual;
 
 INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('MultiBanco', 'transferencia MultiBanco', 0, 400)
+    VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('MultiBanco_levantamento', 'Levantamento MultiBanco', 0, 400)
+    VALUES ('ATM_internacional', 'Transferencia num atm internacional', 3, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('ATM_internacional', 'Depósito/Levantamento num atm internacional', 3, 400)
-    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('ATM_Cambio_EUR-DOLLAR', 'Cambio de Euro para Dollar ', 1.5, 400)
-    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('ATM_Cambio_EUR-LIB', 'Cambio de Euro para Libras ', 4, 400)
-    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('ATM_Cambio_EUR-Franco', 'Cambio de Euro para Franco Suíço ', 6, 400)
+    VALUES ('ATM_Cambio', 'Cambio ', 5, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('Cheque', 'Deposito ou levantamento por cheque', 1, 600)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, null)
+    VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, 1000000)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('Cartao', 'Transacao por cartao', 0, 1)
-     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('Levantamento_Agency', 'Levantamento a partir da Agency', 0, null)
 SELECT * FROM dual;
 /
 
@@ -988,7 +1010,7 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
     VALUES (987654321, 'Bob', addressType('456 Oak St', 'Braga', 'Portugal'), 32, TO_DATE('1990-11-20', 'YYYY-MM-DD'), 'Professor', 'SOLTEIRO', 'bob456', 2)
     INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
-    VALUES (234567890, 'Charlie', addressType('789 Maple St', 'Kanto', 'Japan'), 24, TO_DATE('1998-06-10', 'YYYY-MM-DD'), 'Designer', 'SOLTEIRO', 'charlie789', 1)
+    VALUES (234567890, 'Charlie', addressType('789 Maple St', 'LIsboa', 'Portugal'), 24, TO_DATE('1998-06-10', 'YYYY-MM-DD'), 'Designer', 'SOLTEIRO', 'charlie789', 1)
     -- Add more INTO clauses as needed for additional clients
 SELECT * FROM dual;
 /
@@ -1032,6 +1054,29 @@ INSERT /*+ APPEND PARALLEL */ ALL
 SELECT * FROM dual;
 /
 
+-->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
+
+DECLARE
+  v_num_rows NUMBER := 5;
+BEGIN
+  FOR i IN 1..v_num_rows LOOP
+    INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (
+      NULL, -- Use NULL for idTransaction to allow it to be autogenerated (assuming it's an auto-incremented column)
+      FLOOR(DBMS_RANDOM.value * 10000) + 1, -- balance
+      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')),
+      NULL,
+      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idCard) FROM Card_)) + 1, -- card id
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idTransactionType) FROM TransactionType_)) + 1, -- id transaction type
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idAccount) FROM Account_)) + 1, -- id account
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idOwner) FROM Owner_)) + 1 -- id owner
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
 -->>>>>>>>>>> TRANSACTION
 
 -- Inserting multiple rows into the TRANSACTION_ table
@@ -1042,9 +1087,10 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
     VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 2, 2, 2, 2)
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
-    VALUES (DEFAULT, '200000', TO_DATE('2023-10-20', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 8, 3, 3)
+    VALUES (DEFAULT, '150.00', TO_DATE('2023-10-20', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 3, 3, 3)
 SELECT * FROM DUAL;
 /
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- VIEWS.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -1105,16 +1151,7 @@ FROM EMPLOYEE_ E
 JOIN AGENCY_ A ON E.idAgency = A.idAgency
 GROUP BY A.nameAgency;
 /
---Show how many Clients each Agency have
-CREATE OR REPLACE VIEW AgencyClientCounts AS
-SELECT
-    A.idAgency,
-    A.nameAgency,
-    COUNT(C.nif) AS ClientCount
-FROM AGENCY_ A
-LEFT JOIN CLIENT_ C ON A.idAgency = C.idAgency
-GROUP BY A.idAgency, A.nameAgency;
-/
+
 
 -->>>>>>>>>>> EMPLOYEE
 --Show Witch Emplyee is in wtch Agency
@@ -1157,16 +1194,7 @@ LEFT JOIN OWNER_ O ON C.nif = O.nif
 LEFT JOIN ACCOUNT_ A ON O.idAccount = A.idAccount
 GROUP BY C.nif, C.nameClient;
 /
---Show Top Client From Bank
-CREATE OR REPLACE VIEW AccountHighestBalanceClient AS
-SELECT
-    A.idAccount AS AccountID,
-    A.balance AS HighestBalance,
-    C.nameClient AS ClientName
-FROM ACCOUNT_ A
-JOIN CLIENT_ C ON A.idAgency = C.idAgency
-WHERE A.balance = (SELECT MAX(balance) FROM ACCOUNT_);
-/
+
 
 
 -->>>>>>>>>>> ACCOUNT
@@ -1181,32 +1209,8 @@ FROM ACCOUNT_ A
 JOIN ACCOUNTTYPE_ AT ON A.idAccountType = AT.idAccountType
 WHERE A.idAgency = 1;
 /
---Show AccountHighestBalanceAgency
---RANK() function in SQL is a window function that assigns a unique rank to each row; This assigns a rank to each account within the agency. 
---PARTITION BY clause ensures that ranking is done separately for each agency
---CTE(RankedAccounts) is a temporary result set that is used within the main query.
-CREATE OR REPLACE VIEW AccountHighestBalanceAgency AS
-WITH RankedAccounts AS (
-    SELECT
-        A.idAccount AS AccountID,
-        A.balance AS HighestBalance,
-        A.idAgency AS AgencyID,
-        AG.nameAgency AS AgencyName,
-        C.nameClient AS ClientName,
-        RANK() OVER (PARTITION BY A.idAgency ORDER BY A.balance DESC) AS BalanceRank
-    FROM ACCOUNT_ A
-    JOIN CLIENT_ C ON A.idAgency = C.idAgency
-    JOIN AGENCY_ AG ON A.idAgency = AG.idAgency
-)
-SELECT
-    AccountID,
-    HighestBalance,
-    AgencyID,
-    ClientName,
-    AgencyName
-FROM RankedAccounts
-WHERE BalanceRank = 1;
-/
+
+
 
 -->>>>>>>>>>> CARD
 -- Show only cardType Debito
@@ -1281,39 +1285,8 @@ SELECT
 FROM TRANSACTION_
 WHERE status = 'concluido';
 /
---Show transaction 5000+ 
-CREATE OR REPLACE VIEW HighValueTransactions AS
-SELECT
-    T.idTransaction,
-    T.amount,
-    T.idAccount AS TransactionAccount,
-    C.nameClient AS ClientName,
-    C.idAgency AS ClientAgency
-FROM TRANSACTION_ T
-JOIN TRANSACTIONTYPE_ TT ON T.idTransactionType = TT.idTransactionType
-JOIN ACCOUNT_ A ON T.idAccount = A.idAccount
-JOIN OWNER_ O ON A.idAccount = O.idAccount
-JOIN CLIENT_ C ON O.nif = C.nif
-WHERE TT.nameTransactionType = 'Levantamento_Agency'
-    AND T.amount > 5000;
-/
---Show transaction 10000+ from <> Portugal
-CREATE OR REPLACE VIEW HighValueNonPortugaTransac AS
-SELECT
-    T.idTransaction,
-    T.amount,
-    T.idAccount AS TransactionAccount,
-    C.nameClient AS ClientName,
-    C.nif AS ClientNIF
-FROM TRANSACTION_ T
-JOIN TRANSACTIONTYPE_ TT ON T.idTransactionType = TT.idTransactionType
-JOIN ACCOUNT_ A ON T.idAccount = A.idAccount
-JOIN OWNER_ O ON A.idAccount = O.idAccount
-JOIN CLIENT_ C ON O.nif = C.nif
-WHERE TT.nameTransactionType = 'Transferencia_de_fundos'
-    AND T.amount > 10000
-    AND C.address.country <> 'Portugal';
-/
+
+
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- FUnctions.
