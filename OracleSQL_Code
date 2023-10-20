@@ -795,22 +795,16 @@ ORDER BY
 SELECT * FROM unique_district_mview;
 
 -->>>>>>>>>>>>>>transaction_name_mview
-CREATE MATERIALIZED VIEW transaction_name_mview
+CREATE MATERIALIZED VIEW Transaction_name_mview
 TABLESPACE STATIC_TABLE_SPACE
 BUILD IMMEDIATE
 REFRESH COMPLETE
 AS
 SELECT 
-    d.name AS district_name,
-    m.municipality_name,
-    p.id_postcode,
-    p.city
-FROM
-    DISTRICT_EXT d
-    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district
-    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality
-
---SELECT * FROM all_mviews; --Para ver todas as Materialized views
+    TransactionName,
+    id_transaction_name
+FROM TRANSACTIONNAME_EXT;
+/
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- COMMENTS.
