@@ -1,0 +1,180 @@
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- INSERTS.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> LOCATION
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO LOCATION_ (districtProvince, country) VALUES ('Aveiro', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Beja', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Braga', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Bragança', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Porto', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Santarém', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Setúbal', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Viana do Castelo', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Vila Real', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Viseu', 'Portugal')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Ontario', 'Canada')
+    INTO LOCATION_ (districtProvince, country) VALUES ('California', 'USA')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Queensland', 'Australia')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Gauteng', 'South Africa')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Kanto', 'Japan')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Buenos Aires', 'Argentina')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Lombardy', 'Italy')
+    INTO LOCATION_ (districtProvince, country) VALUES ('Catalonia', 'Spain')
+    INTO LOCATION_ (districtProvince, country) VALUES ('São Paulo', 'Brazil')
+    -- Add more INTO clauses as needed for additional provinces
+SELECT * FROM dual;
+
+
+-->>>>>>>>>>> ACCOUNTTYPE
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta-Poupaça', 'Conta para poupar dinhero', 'null')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta à ordem', 'Não tem produtos ou serviços específicos associados.', '>=18')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta jovem', 'Conta para Jovens Adolescente', '>=18 e <=25')
+    INTO ACCOUNTTYPE_ (nameAccountType, description, minimumRequirements) VALUES ('Conta Ordenado', 'Conta para onde vai parar o seu Oerdenado', '>=18')
+    -- Add more INTO clauses as needed for additional rows
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> TRANSACTIONTYPE
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_nacional', 'transferencia num atm nacional', 0, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_internacional', 'Transferencia num atm internacional', 3, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('ATM_Cambio', 'Cambio ', 5, 400)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Cheque', 'Deposito ou levantamento por cheque', 1, 600)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, 1000000)
+    INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
+    VALUES ('Cartao', 'Transacao por cartao', 0, 1)
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> AGENCY
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Solverde', '9:00 - 16:00', 3, 1)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Betano', '8:30 - 15:30', 3, 2)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Betclick', '10:00 - 17:00', 3, 3)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Vamos Apostar', '9:30 - 17:00', 3, 4)
+    -- Add more INTO clauses as needed for additional agencies
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> EMPLOYEE
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (123456789, 'Pedro', 'Gonçalves', ContactType(111, 111111111, 'pedro@gmail.com'), AddressType('Rua Marmelo', 'Faro', 'Portugal'), 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact,  address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (987654321, 'Ricardo', 'Vilhena', ContactType(222, 222222222, 'ricardo@gmail.com'), AddressType('Rua MeM', 'Braga', 'Portugal'), 18, TO_DATE('2004-12-18', 'YYYY-MM-DD'), 'DEF987654321', 'Chefe Markting', 7500, 2)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234567230, ';Marco', 'Valente',ContactType(333, 33333333, 'marco@gmail.com'), AddressType('Rua Vodka', 'LIsboa', 'Portugal'), 21, TO_DATE('2002-06-06', 'YYYY-MM-DD'), 'GHI234567890', 'Chefe Designe ', 8000, 1)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234567890, ';Rodrigo', 'Pimenta',ContactType(444, 444444444, 'rodrigo@gmail.com'), AddressType('Rua Getto', 'Coimbra', 'Portugal'), 20, TO_DATE('2003-06-15', 'YYYY-MM-DD'), 'GHI234567890', 'Rececionista', 2000, 3)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234127890, ';Lucas', 'Martins',ContactType(555, 555555555, 'lucas@gmail.com'), AddressType('Rua Ginasio', 'Beja', 'Portugal'), 20, TO_DATE('2003-08-16', 'YYYY-MM-DD'), 'GHI234567890', 'Homem das Limpezas ', 1000, 2)
+        -- Add more INTO clauses as needed for additional employees
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> CLIENT
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (123456789, 'Alice', addressType('Rua Ola', 'Faro', 'Portugal'), 28, TO_DATE('1995-03-15', 'YYYY-MM-DD'), 'Engenheiro', 'CASADO', 'alice123', 1)
+    INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (987654321, 'Bob', addressType('456 Oak St', 'Braga', 'Portugal'), 32, TO_DATE('1990-11-20', 'YYYY-MM-DD'), 'Professor', 'SOLTEIRO', 'bob456', 2)
+    INTO CLIENT_ (nif, nameClient, address, age, dateBirth, jobClient, maritalStatus, passwordCLient, idAgency) 
+    VALUES (234567890, 'Charlie', addressType('789 Maple St', 'LIsboa', 'Portugal'), 24, TO_DATE('1998-06-10', 'YYYY-MM-DD'), 'Designer', 'SOLTEIRO', 'charlie789', 1)
+    -- Add more INTO clauses as needed for additional clients
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> ACCOUNT
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-01-15', 'YYYY-MM-DD'), 5000.00, 'normal', 1, 1)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-02-20', 'YYYY-MM-DD'), 7000.00, 'congelada',2, 2)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
+    VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal',1, 3)
+    -- Add more INTO clauses as needed for additional accounts
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> CARD
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (1283, 789, 'Debito', 1)
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (5678, 456, 'Credito', 2)
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (9868, 123, 'Debito', 3)
+    -- Add more INTO clauses as needed for additional cards
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> OWNER
+
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (1, 123456789, 1)
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (2, 987654321, 2)
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (3, 234567890, 1)
+    -- Add more INTO clauses as needed for additional owner records
+SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
+
+DECLARE
+  v_num_rows NUMBER := 5;
+BEGIN
+  FOR i IN 1..v_num_rows LOOP
+    INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (
+      NULL, -- Use NULL for idTransaction to allow it to be autogenerated (assuming it's an auto-incremented column)
+      FLOOR(DBMS_RANDOM.value * 10000) + 1, -- balance
+      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')),
+      NULL,
+      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idCard) FROM Card_)) + 1, -- card id
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idTransactionType) FROM TransactionType_)) + 1, -- id transaction type
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idAccount) FROM Account_)) + 1, -- id account
+      FLOOR(DBMS_RANDOM.value * (SELECT Count(idOwner) FROM Owner_)) + 1 -- id owner
+    );
+  END LOOP;
+  COMMIT;
+END;
+/
+
+-->>>>>>>>>>> TRANSACTION
+
+-- Inserting multiple rows into the TRANSACTION_ table
+--We have de default on this table so the sequence can be triggerd
+INSERT /*+ APPEND PARALLEL */ ALL
+    INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (DEFAULT, '100.00', TO_DATE('2023-10-18', 'YYYY-MM-DD'), 'concluido', 'salario', 1, 1 ,1 ,1)
+    INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 2, 2, 2, 2)
+    INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (DEFAULT, '150.00', TO_DATE('2023-10-20', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 3, 3, 3)
+SELECT * FROM DUAL;
+/

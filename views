@@ -1,0 +1,195 @@
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- VIEWS.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> LOCATION
+--Show locations that aren't in Portugal
+CREATE OR REPLACE VIEW location_not_portugal AS 
+SELECT idLocation, districtProvince, country
+FROM LOCATION_
+WHERE country <> 'Portugal';
+/
+--Show locations that are in Portugal
+CREATE OR REPLACE VIEW location_portugal AS 
+SELECT idLocation, districtProvince, country
+FROM LOCATION_
+WHERE country = 'Portugal';
+/
+--Show What Location Have Agencys
+CREATE OR REPLACE VIEW LocationAgency AS
+SELECT
+    L.idLocation,
+    L.districtProvince AS Location_District,
+    A.nameAgency AS Agency_Name
+FROM LOCATION_ L
+JOIN AGENCY_ A ON L.idLocation = A.idLocation;
+/
+
+-->>>>>>>>>>> ACCOUNTTYPE~
+--Show AccountTypes Description
+CREATE OR REPLACE VIEW AccountTypeDescription AS
+SELECT
+    nameAccountType AS Account_Type,
+    description AS Description
+FROM ACCOUNTTYPE_;
+/
+
+
+-->>>>>>>>>>> TRANSACTIONTYPE
+CREATE OR REPLACE VIEW TransactionTypeStat AS
+SELECT
+    TT.nameTransactionType AS TransactionTypeName,
+    COUNT(T.idTransaction) AS TransactionCount,
+    SUM(T.amount) AS TotalAmount
+FROM TRANSACTIONTYPE_ TT
+LEFT JOIN TRANSACTION_ T ON TT.idTransactionType = T.idTransactionType
+GROUP BY TT.nameTransactionType
+ORDER BY TT.nameTransactionType;
+/
+
+
+-->>>>>>>>>>> AGENCY
+--Show Average Age by Agency
+CREATE OR REPLACE VIEW AverageEmployeeAgeByAgency AS
+SELECT
+    A.nameAgency AS Agency_Name,
+    AVG(E.age) AS AverageAge
+FROM EMPLOYEE_ E
+JOIN AGENCY_ A ON E.idAgency = A.idAgency
+GROUP BY A.nameAgency;
+/
+
+
+-->>>>>>>>>>> EMPLOYEE
+--Show Witch Emplyee is in wtch Agency
+CREATE OR REPLACE VIEW EmployeeWithAgency AS
+SELECT
+    E.nif AS Employee_NIF,
+    E.nameEmployee AS Employee_Name,
+    E.surname AS Employee_Surname,
+    TREAT(E.Contact AS ContactType).nin AS nin, 
+    TREAT(E.Contact AS ContactType).Contact AS Contact, 
+    TREAT(E.Contact AS ContactType).email AS email, 
+    E.age AS Employee_Age,
+    E.JobRole AS Employee_JobRole,
+    A.nameAgency AS Agency_Name
+FROM EMPLOYEE_ E
+JOIN AGENCY_ A ON E.idAgency = A.idAgency;
+/
+--Show How many Emplyee does the agency have
+CREATE OR REPLACE VIEW AgenciesWithEmployeeCount AS
+SELECT
+    A.idAgency AS Agency_ID,
+    A.nameAgency AS Agency_Name,
+    COUNT(E.nif) AS EmployeeCount
+FROM AGENCY_ A
+LEFT JOIN EMPLOYEE_ E ON A.idAgency = E.idAgency
+GROUP BY A.idAgency, A.nameAgency;
+/
+
+-->>>>>>>>>>> CLIENT
+--Show Max and Min of the all time balance of the account
+CREATE OR REPLACE VIEW ClientAccountBalanceStats AS
+SELECT
+    C.nif AS Client_NIF,
+    C.nameClient AS Client_Name,
+    MIN(A.balance) AS MinBalance,
+    MAX(A.balance) AS MaxBalance,
+    SUM(A.balance) AS TotalBalance
+FROM CLIENT_ C
+LEFT JOIN OWNER_ O ON C.nif = O.nif
+LEFT JOIN ACCOUNT_ A ON O.idAccount = A.idAccount
+GROUP BY C.nif, C.nameClient;
+/
+
+
+
+-->>>>>>>>>>> ACCOUNT
+--Show account / idagency / acctype
+CREATE OR REPLACE VIEW ShowAccountIdAgencyAcctype AS
+SELECT
+    A.idAccount,
+    A.creationDate,
+    A.idAgency,
+    AT.nameAccountType AS Account_Type
+FROM ACCOUNT_ A
+JOIN ACCOUNTTYPE_ AT ON A.idAccountType = AT.idAccountType
+WHERE A.idAgency = 1;
+/
+
+
+
+-->>>>>>>>>>> CARD
+-- Show only cardType Debito
+CREATE OR REPLACE VIEW debit_card_view AS
+SELECT idCard, expirationDate, pin, CVC, cardType, idAccount
+FROM CARD_
+WHERE cardType = 'Debito';
+/
+-- Show only cardType Credito
+CREATE OR REPLACE VIEW credit_card_view AS
+SELECT idCard, expirationDate, pin, CVC, cardType, idAccount
+FROM CARD_
+WHERE cardType = 'Credito';
+/
+-- Show only expired Cards
+CREATE OR REPLACE VIEW expired_card_view AS
+SELECT idCard, expirationDate, pin, CVC, cardType, idAccount
+FROM CARD_
+WHERE expirationDate < SYSDATE;
+/
+-- Show only active Credito cards
+CREATE OR REPLACE VIEW active_credit_card_view AS
+SELECT idCard, expirationDate, pin, CVC, cardType, idAccount
+FROM CARD_
+WHERE cardType = 'Credito' AND expirationDate >= SYSDATE;
+/
+--Show owner, cliente name, e tipo de cartao
+CREATE OR REPLACE VIEW owner_client_card AS
+SELECT O.idOwner, O.nif, C.nameClient, C.age, CA.cardType
+FROM OWNER_ O
+INNER JOIN CLIENT_ C ON O.nif = C.nif
+LEFT JOIN CARD_ CA ON O.idAccount = CA.idAccount;
+/
+--Card Usage
+CREATE OR REPLACE VIEW CardUsageStatistics AS
+SELECT
+    C.idCard,
+    COUNT(T.idTransaction) AS TransactionCount,
+    SUM(T.amount) AS TotalSpent,
+    AVG(T.amount) AS AverageTransactionAmount
+FROM CARD_ C
+LEFT JOIN TRANSACTION_ T ON C.idCard = T.idCard
+GROUP BY C.idCard
+ORDER BY C.idCard;
+/
+-->>>>>>>>>>> OWNER
+-- Show OWNERs age and job 
+CREATE OR REPLACE VIEW owners_with_age_and_job_view AS
+SELECT O.idOwner, O.idAccount, O.nif, O.ownership, C.age, C.jobClient
+FROM OWNER_ O
+INNER JOIN CLIENT_ C ON O.nif = C.nif
+WHERE C.age IS NOT NULL AND C.jobClient IS NOT NULL;
+/
+--Show OWNERs martial status
+CREATE OR REPLACE VIEW owners_with_marital_status AS
+SELECT O.idOwner, O.idAccount, O.nif, O.ownership, C.maritalStatus
+FROM OWNER_ O
+INNER JOIN CLIENT_ C ON O.nif = C.nif
+WHERE C.maritalStatus IS NOT NULL;
+/
+-->>>>>>>>>>> TRANSACTION
+CREATE OR REPLACE VIEW ProcessedTransactions AS
+SELECT
+    idTransaction,
+    amount,
+    dateTransaction,
+    idCard,
+    idTransactionType,
+    idAccount,
+    idOwner,
+    status
+FROM TRANSACTION_
+WHERE status = 'concluido';
+/
+

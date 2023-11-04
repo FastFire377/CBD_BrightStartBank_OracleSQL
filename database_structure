@@ -1,0 +1,826 @@
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- CLEAR DATABASE.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TRIGGER TRANSACTION_trg;
+/
+
+DROP SEQUENCE TRANSACTION_seq;
+/
+
+DROP TABLE TRANSACTION_;
+/
+
+-->>>>>>>>>---------------------------------------------------------------------
+DROP TABLE DISTRICT_EXT;
+/
+
+DROP TABLE MUNICIPALITY_EXT;
+/
+
+DROP TABLE POSTCODE_EXT;
+/
+DROP TABLE TRANSACTIONNAME_EXT;
+/
+DROP MATERIALIZED VIEW unique_district_mview;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+ALTER TABLE AGENCY_ DROP COLUMN IdManager;
+/
+
+DROP TRIGGER UPDATE_EXPIRATION_CARD;
+/
+
+DROP TRIGGER CARD_trg;
+/
+
+DROP SEQUENCE CARD_seq;
+/
+
+DROP TABLE CARD_;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE OWNER_ DROP COLUMN nif;
+/
+
+DROP TRIGGER OWNER_trg;
+/
+
+DROP SEQUENCE OWNER_seq;
+/
+
+DROP TABLE OWNER_;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
+/
+
+ALTER TABLE ACCOUNT_ DROP COLUMN idAccountType;
+/
+
+DROP TRIGGER UPDATE_CREATION_ACCOUNT;
+/
+
+DROP TRIGGER ACCOUNT_trg;
+/
+
+DROP SEQUENCE ACCOUNT_seq;
+/
+
+DROP TABLE ACCOUNT_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER UPDATE_AGE_CLIENT;
+/
+
+DROP TABLE CLIENT_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER UPDATE_AGE_EMPLOYEE;
+/
+
+DROP TABLE EMPLOYEE_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER AGENCY_trg;
+/
+
+DROP SEQUENCE AGENCY_seq;
+/
+
+DROP TABLE AGENCY_;
+/
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TRIGGER LOCATION_trg;
+/
+
+DROP SEQUENCE LOCATION_seq;
+/
+
+DROP TABLE LOCATION_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER ACCOUNTTYPE_trg;
+/
+
+DROP SEQUENCE ACCOUNTTYPE_seq;
+/
+
+DROP TABLE ACCOUNTTYPE_;
+/
+
+-->>>>>>>>>>>
+
+DROP TRIGGER TRANSACTIONTYPE_trg;
+/
+
+DROP SEQUENCE TRANSACTIONTYPE_seq;
+/
+
+DROP TABLE TRANSACTIONTYPE_;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TYPE AddressType;
+/
+
+-->>>>>>>>>>>
+
+DROP TYPE ContactType;
+/
+
+-->>>>>>>>>>>
+
+DROP TYPE multiObjectFunction;
+/
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>
+
+DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TYPES Address AND Contact.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE 
+
+CREATE TYPE AddressType AS OBJECT ( 
+    street VARCHAR(99),
+    districtProvince VARCHAR(99),
+    country VARCHAR(99)
+);
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE 
+
+CREATE TYPE ContactType AS OBJECT ( 
+    nin number(3),
+    Contact NUMBER(9),
+    email VARCHAR(99)
+);
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE (Array)
+
+CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+CREATE TABLESPACE STATIC_TABLE_SPACE
+DATAFILE 'static_tablesV2.dbf' SIZE 50M
+AUTOEXTEND ON NEXT 5M
+MAXSIZE UNLIMITED;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE LOCATION_(
+    idLocation NUMBER(9) PRIMARY KEY,
+    districtProvince varchar(99),
+    country VARCHAR(99)
+) PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE LOCATION_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER LOCATION_trg
+BEFORE INSERT ON LOCATION_
+FOR EACH ROW
+BEGIN
+  SELECT LOCATION_seq.NEXTVAL
+  INTO :new.idLocation
+  FROM dual;
+END;
+/
+
+ALTER TABLE LOCATION_ MOVE TABLESPACE STATIC_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_country_location ON LOCATION_(country);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE ACCOUNTTYPE_(
+     idAccountType NUMBER(9) PRIMARY KEY,
+     nameAccountType VARCHAR(45),
+     description VARCHAR(99),
+     minimumRequirements VARCHAR(99)
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE ACCOUNTTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
+/
+ 
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE ACCOUNTTYPE_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER ACCOUNTTYPE_trg
+BEFORE INSERT ON ACCOUNTTYPE_
+FOR EACH ROW
+BEGIN
+  SELECT ACCOUNTTYPE_seq.NEXTVAL
+  INTO :new.idAccountType
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_name_account_type ON ACCOUNTTYPE_(nameAccountType);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE TRANSACTIONTYPE_(
+     idTransactionType NUMBER(9) PRIMARY KEY,
+     nameTransactionType VARCHAR(45),
+     description VARCHAR(45),
+     appliedRate NUMBER(3),
+     LimitTransaction FLOAT
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE TRANSACTIONTYPE_ MOVE TABLESPACE STATIC_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE TRANSACTIONTYPE_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER TRANSACTIONTYPE_trg
+BEFORE INSERT ON TRANSACTIONTYPE_
+FOR EACH ROW
+BEGIN
+  SELECT TRANSACTIONTYPE_seq.NEXTVAL
+  INTO :new.idTransactionType
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_name_transaction_type ON TRANSACTIONTYPE_(nameTransactionType);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE NORMALS AND TABLES AGENCY, EMPLOYEE, CLIENT, ACCOUNT AND CARD.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLESPACE
+
+CREATE TABLESPACE NORMALS_TABLE_SPACE
+DATAFILE 'regular_tablesV2.dbf' SIZE 50M
+AUTOEXTEND ON NEXT 5M
+MAXSIZE UNLIMITED;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE AGENCY_(
+    idAgency NUMBER(9) PRIMARY KEY,
+    nameAgency varchar(45),
+    openingHours varchar(45),
+    NEmployees number,
+    Contact ContactType,
+    --forein keyss
+    idLocation NUMBER(9),
+    FOREIGN KEY (idLocation) REFERENCES LOCATION_(idLocation) ON DELETE SET NULL
+    
+)PARALLEL;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
+
+-->>>>>>>>>>>
+
+ALTER TABLE AGENCY_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE AGENCY_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER AGENCY_trg
+BEFORE INSERT ON AGENCY_
+FOR EACH ROW
+BEGIN
+  SELECT AGENCY_seq.NEXTVAL
+  INTO :new.idAgency
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE EMPLOYEE_(
+    nif NUMBER(9) PRIMARY KEY,
+    nameEmployee  VARCHAR(45),
+    surname VARCHAR(45),
+    Contact ContactType,
+    address AddressType,
+    age number(3),
+    dateBirth date,
+    iban VARCHAR(99),
+    JobRole VARCHAR(45),
+    salary NUMBER(20),
+    idAgency NUMBER(9),
+    CONSTRAINT FK_Employee_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
+
+CREATE INDEX idx_surname ON EMPLOYEE_(surname);
+
+CREATE INDEX idx_iban ON EMPLOYEE_(iban);
+
+CREATE INDEX idx_idAgency ON EMPLOYEE_(idAgency);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+ALTER TABLE AGENCY_ ADD IdManager NUMBER(9);
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE AGENCY_ ADD FOREIGN KEY (IdManager) REFERENCES EMPLOYEE_(nif);
+/
+
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER UPDATE_AGE_EMPLOYEE
+BEFORE INSERT ON EMPLOYEE_
+FOR EACH ROW
+BEGIN
+  :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
+END;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE 
+
+CREATE TABLE CLIENT_(
+    nif NUMBER(9) PRIMARY KEY,
+    nameClient  VARCHAR(45),
+    Contact ContactType,
+    address AddressType,
+    age number(3),
+    dateBirth date,
+    jobClient Varchar(45),
+    maritalStatus VARCHAR(50) CHECK (maritalStatus IN ('SOLTEIRO', 'CASADO')),
+    passwordCLient VARCHAR(45),
+    idAgency NUMBER(9),
+    CONSTRAINT FK_Client_Agency FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency) ON DELETE SET NULL
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE CLIENT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER UPDATE_AGE_CLIENT
+BEFORE INSERT ON CLIENT_
+    FOR EACH ROW
+BEGIN
+  :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
+    END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_nameClient ON CLIENT_(nameClient);
+
+CREATE INDEX idx_ClientidAgency ON CLIENT_(idAgency);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE
+
+CREATE TABLE ACCOUNT_(
+    idAccount NUMBER(9) PRIMARY KEY,
+    creationDate DATE,
+    balance NUMBER(12,2),
+    status varchar(10) CHECK (status IN ('congelada', 'normal', 'etc')),
+    idAgency NUMBER(9),
+    idAccountType NUMBER(9),
+    CONSTRAINT FK_AgencyAccount FOREIGN KEY (idAgency) REFERENCES AGENCY_(idAgency)ON DELETE SET NULL,
+    CONSTRAINT FK_AcountTypeAccount FOREIGN KEY (idAccountType) REFERENCES ACCOUNTTYPE_(idAccountType)ON DELETE SET NULL
+
+)PARALLEL;
+/
+
+ALTER TABLE ACCOUNT_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE ACCOUNT_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER AUTO INCREMENT
+
+CREATE OR REPLACE TRIGGER ACCOUNT_trg
+BEFORE INSERT ON ACCOUNT_
+FOR EACH ROW
+BEGIN
+  SELECT ACCOUNT_seq.NEXTVAL
+  INTO :new.idAccount
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> TRIGGER UPDATE CREATION
+
+CREATE OR REPLACE TRIGGER UPDATE_CREATION_ACCOUNT
+BEFORE INSERT ON ACCOUNT_
+FOR EACH ROW
+BEGIN
+  :new.creationDate := TO_DATE(SYSDATE, 'YYYY-MM-DD HH24:MI:SS');
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idAccountType ON ACCOUNT_(idAccountType);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE
+
+CREATE TABLE CARD_(
+    idCard NUMBER(9) PRIMARY KEY,
+    expirationDate DATE,
+    pin number(4),
+    CVC number(3),
+    cardType varchar(45) CHECK (cardType IN ('Debito', 'Credito')),
+    idAccount NUMBER(9),
+    CONSTRAINT FK_AcountCard FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE CARD_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE CARD_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER CARD_trg
+BEFORE INSERT ON CARD_
+FOR EACH ROW
+BEGIN
+  SELECT CARD_seq.NEXTVAL
+  INTO :new.idCard
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
+
+CREATE OR REPLACE TRIGGER UPDATE_EXPIRATION_CARD
+BEFORE INSERT ON CARD_
+FOR EACH ROW
+BEGIN
+  :new.expirationDate := SYSDATE - INTERVAL '5' YEAR;
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idAccount ON CARD_(idAccount);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+CREATE TABLE OWNER_ (  
+    idOwner NUMBER(9) PRIMARY KEY,
+    idAccount NUMBER(9),
+    nif NUMBER(9), 
+    ownership NUMBER(1) CHECK (ownership IN (1, 2)), -- 1 for main owner, 2 for secondary owner
+    CONSTRAINT FK_Owners_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT FK_Owners_Client FOREIGN KEY (nif) REFERENCES CLIENT_(nif) ON DELETE SET NULL,
+    CONSTRAINT UQ_MainOwner UNIQUE (idAccount, ownership) -- Unique constraint to ensure only one main owner per account
+) PARALLEL;
+/
+ALTER TABLE OWNER_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE OWNER_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER OWNER_trg
+BEFORE INSERT ON OWNER_
+FOR EACH ROW
+BEGIN
+  SELECT OWNER_seq.NEXTVAL
+  INTO :new.idOwner
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_Owner_idAccount ON OWNER_(idAccount);
+
+CREATE INDEX idx_nif ON OWNER_(nif);
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE AND TABLE TRANSACTION.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+CREATE TABLESPACE TRANSACTION_TABLE_SPACE
+DATAFILE 'transactionV2.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M
+MAXSIZE UNLIMITED;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TABLE
+
+CREATE TABLE TRANSACTION_(
+     idTransaction NUMBER(10) PRIMARY KEY,
+     amount NUMBER(12,2),
+     dateTransaction date,
+     nameTransaction VARCHAR(45),
+     status varchar(11) CHECK (status IN ('processando', 'concluido', 'etc')),
+     idCard NUMBER(9),
+     idTransactionType NUMBER(9),
+     idAccount NUMBER(9),
+     idOwner NUMBER(9),
+    CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard) ON DELETE SET NULL,
+    CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType) ON DELETE SET NULL,
+    CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL
+)PARALLEL;
+/
+
+-->>>>>>>>>>>
+
+ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
+/
+
+-->>>>>>>>>>> SEQUENCE
+
+CREATE SEQUENCE TRANSACTION_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ 
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER TRANSACTION_trg
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+BEGIN
+  SELECT TRANSACTION_seq.NEXTVAL
+  INTO :new.idTransaction
+  FROM dual;
+END;
+/
+
+-->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
+CREATE OR REPLACE TRIGGER UPDATE_DATE_TRANSACTION
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+BEGIN
+  :new.dateTransaction := SYSDATE;
+END;
+/
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_idCard ON TRANSACTION_(idCard);
+/
+
+CREATE INDEX idx_idTransactionType ON TRANSACTION_(idTransactionType);
+/
+
+CREATE INDEX idx_Transaction_idAccount ON TRANSACTION_(idAccount);
+/
+
+CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
+/
+
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- EXTERNAL TABLES
+-->>>>>>>>>>>-------------------------------------------------------------------
+--DIRECTORY FOR EXTERNAL TABLES
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY Location_Directory  as ''/home/oracle/src/location_files'''; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
+
+-->>>>>>>>>>> TRANSACTION NAME
+CREATE TABLE TRANSACTIONNAME_EXT
+(
+    id_transaction_name NUMBER (9),
+    TransactionName VARCHAR(45)
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('TransactionNames.csv')
+);
+
+-->>>>>>>>>>> DISTRITO
+CREATE TABLE DISTRICT_EXT
+(
+    id_district NUMBER (25),
+    name VARCHAR(25)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('DISTRICT.csv')
+);
+-->>>>>>>>>>>>>MUNICIPIO
+CREATE TABLE MUNICIPALITY_EXT
+(
+    id_district NUMBER (25),
+    id_municipality NUMBER(25),
+    municipality_name VARCHAR(45)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('MUNICIPALITY.csv')
+);
+-->>>>>>>>>>>>>>>>>CODIGO POSTAL
+CREATE TABLE POSTCODE_EXT
+(
+    id_district NUMBER (25),
+    id_municipality NUMBER(25),
+    id_postcode NUMBER(25),
+    city VARCHAR(45)
+    
+)
+ORGANIZATION EXTERNAL(
+TYPE ORACLE_LOADER
+DEFAULT DIRECTORY Location_Directory
+Access parameters (
+RECORDS DELIMITED BY NEWLINE
+FIELDS TERMINATED BY ';'
+)
+LOCATION('POSTCODE.csv')
+);
+
+-->>>>>>>>>>>>>>>>unique_district_mview
+CREATE MATERIALIZED VIEW unique_district_mview
+TABLESPACE STATIC_TABLE_SPACE
+BUILD IMMEDIATE
+REFRESH COMPLETE
+AS
+SELECT 
+    d.name AS district_name,
+    m.municipality_name,
+    p.id_postcode,
+    p.city
+FROM
+    DISTRICT_EXT d
+    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district
+    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality
+ORDER BY
+    d.id_district;
+    
+BEGIN
+    EXECUTE IMMEDIATE 'SELECT * FROM unique_district_mview'; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
+END;
+/
+
+-->>>>>>>>>>>>>>transaction_name_mview
+BEGIN
+    EXECUTE IMMEDIATE '
+CREATE MATERIALIZED VIEW transaction_name_mview 
+TABLESPACE STATIC_TABLE_SPACE 
+BUILD IMMEDIATE 
+REFRESH COMPLETE 
+AS 
+SELECT 
+    d.name AS district_name, 
+    m.municipality_name, 
+    p.id_postcode, 
+    p.city 
+FROM 
+    DISTRICT_EXT d 
+    JOIN MUNICIPALITY_EXT m ON d.id_district = m.id_district 
+    JOIN POSTCODE_EXT p ON m.id_municipality = p.id_municipality';
+END;
+/
+--SELECT * FROM all_mviews; --Para ver todas as Materialized views

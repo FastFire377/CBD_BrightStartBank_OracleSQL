@@ -1,0 +1,75 @@
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- COMMENTS.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> LOCATION_
+
+COMMENT ON TABLE LOCATION_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre localizações, incluindo ID da localização, distrito/província 
+e país.';
+/
+
+-->>>>>>>>>>> ACCOUNTTYPE
+
+COMMENT ON TABLE ACCOUNTTYPE_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre tipos de conta, incluindo ID do tipo de conta, nome, 
+descrição e requisitos mínimos.';
+/
+
+-->>>>>>>>>>> TRANSACTIONTYPE
+
+COMMENT ON TABLE TRANSACTIONTYPE_ IS 'Esta tabela destina-se ao armazenamento 
+de informações sobre tipos de transação, incluindo ID do tipo de transação, 
+nome, descrição, taxa aplicada e limite.';
+/
+
+-->>>>>>>>>>> AGENCY
+
+COMMENT ON TABLE AGENCY_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre agências, incluindo ID da agência, nome da agência, horário 
+de funcionamento, número de funcionários, detalhes de contato e ID de 
+localização referente à tabela LOCATION_.';
+/
+
+-->>>>>>>>>>> EMPLOYEE
+
+COMMENT ON TABLE EMPLOYEE_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre funcionários, incluindo NIF, nome do funcionário, sobrenome, 
+detalhes de contato, endereço, idade, data de nascimento, IBAN, cargo e 
+salário.';
+/
+
+-->>>>>>>>>>> CLIENT
+
+COMMENT ON TABLE CLIENT_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre clientes, incluindo NIF, nome do cliente, detalhes de contato, 
+endereço, idade, data de nascimento, profissão, estado civil e 
+palavra-passe.';
+/
+
+-->>>>>>>>>>> ACCOUNT
+
+COMMENT ON TABLE ACCOUNT_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre contas, incluindo ID da conta, quando foi criada, saldo e 
+estado.';
+/
+
+-->>>>>>>>>>> CARD
+
+COMMENT ON TABLE CARD_ IS 'Esta tabela destina-se ao armazenamento de 
+informações sobre cartões, incluindo ID do cartão, data de validade, PIN, 
+CVC e tipo de cartão.';
+/
+
+-->>>>>>>>>>> TRANSACTION
+
+COMMENT ON TABLE TRANSACTION_ IS 'Esta tabela destina-se ao armazenamento dos 
+dados sobre uma transação, efetuada ou não, com dados sobre o montante, estado 
+e data de início da transação.';
+/
+-->>>>>>>>>>> OWNER
+COMMENT ON TABLE OWNER_ IS 'Esta tabela destina-se ao armazenamento dos
+ dados sobre os proprietários das contas, incluindo informações sobre a 
+ relação de propriedade, associada ao número de identificação fiscal (NIF).';
+ /
