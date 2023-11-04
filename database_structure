@@ -824,3 +824,77 @@ FROM
 END;
 /
 --SELECT * FROM all_mviews; --Para ver todas as Materialized views
+
+-->>>>>>>>>>>------------------------------------------------------------------- adicionado ver
+DROP SEQUENCE HISTORYTRANSACTION_seq;
+/
+
+DROP TABLE HISTORYTRANSACTION_;
+/
+
+DROP SEQUENCE LOG_seq;
+/
+
+DROP TABLE LOG_;
+/
+
+DROP TABLESPACE HISTORYTRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE AND TABLE TRANSACTION.
+-->>>>>>>>>>>-------------------------------------------------------------------
+ 
+CREATE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE
+DATAFILE 'historytransction.dbf' SIZE 200M
+AUTOEXTEND ON NEXT 100M
+MAXSIZE UNLIMITED;
+/
+ 
+-->>>>>>>>>>>-------------------------------------------------------------------
+ 
+-->>>>>>>>>>> CREATE TABLE
+CREATE TABLE HISTORYTRANSACTION_ (
+    idHistoryTransaction NUMBER(10) PRIMARY KEY,
+    idTransaction NUMBER(10),
+    amount NUMBER(12,2),
+    dateTransaction date,
+    nameTransaction VARCHAR(45),
+    status varchar(11) CHECK (status IN ('processando', 'concluido', 'etc')),
+    idCard NUMBER(9),
+    idTransactionType NUMBER(9),
+    idAccount NUMBER(9),  
+    idOwner NUMBER(9),
+    CONSTRAINT FK_T_History_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard) ON DELETE SET NULL,
+    CONSTRAINT FK_T_History_Type FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType) ON DELETE SET NULL,
+    CONSTRAINT FK_T_History_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT FK_T_History_Card FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL
+) PARALLEL;
+/
+ 
+ALTER TABLE HISTORYTRANSACTION_ MOVE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE;
+/
+-->>>>>>>>>>> SEQUENCE
+ 
+CREATE SEQUENCE HISTORYTRANSACTION_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ -->>>>>>>>>>>-------------------------------------------------------------------
+CREATE TABLE LOG_(
+idLog NUMBER(10) PRIMARY KEY,
+errorMessage VARCHAR(50),
+errorLocation VARCHAR(10),
+erroDate DATE
+) PARALLEL;
+/
+
+ALTER TABLE HISTORYTRANSACTION_ MOVE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE;
+/
+-->>>>>>>>>>> SEQUENCE
+ 
+CREATE SEQUENCE LOG_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+ -->>>>>>>>>>>
+ 
