@@ -1089,24 +1089,34 @@ SELECT * FROM dual;
 -->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
 
 DECLARE
-  v_num_rows NUMBER := 1;
+  v_num_rows NUMBER := 5;
   v_name_transaction VARCHAR2(45);
+  v_idconta NUMBER;
+  v_idcard NUMBER;
+  v_idowner NUMBER;
 BEGIN
+  
   FOR i IN 1..v_num_rows LOOP
-
-    SELECT C.TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) C WHERE rownum = 1;
+    
+    --GUARDAR VALOR RANDOM DE ID CONTA E GUARDAR VALOR DO PRIMEIRO CARTAO ASSOCIADO A ESSA CONTA
+    SELECT IDACCOUNT INTO v_idconta FROM (SELECT * FROM ACCOUNT_ ORDER BY dbms_random.value) WHERE rownum = 1;
+    SELECT idcard INTO v_idcard FROM (SELECT * FROM CARD_ WHERE idcard = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
+    SELECT idowner INTO v_idowner FROM (SELECT * FROM OWNER_ where IDOWNER = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
+    
+    -- GUARDAR VALOR PARA NOME DA TRANSACAO
+    SELECT TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) WHERE rownum = 1;
 
     INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
     VALUES (
       NULL, -- auto increment
-      FLOOR(DBMS_RANDOM.value * 1000000) + 1, -- amount
-      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')),
+      FLOOR(DBMS_RANDOM.value * 10000) + 1, -- amount
+      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')), -- date da Transaction
       v_name_transaction, -- transaction name
       CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idCard) FROM Card_)) + 1, -- card id
+      v_idcard, -- card id
       FLOOR(DBMS_RANDOM.value * (SELECT Count(idTransactionType) FROM TransactionType_)) + 1, -- id transaction type
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idAccount) FROM Account_)) + 1, -- id account
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idOwner) FROM Owner_)) + 1 -- id owner
+      v_idconta, -- id account
+      v_idowner -- id owner
     );
   END LOOP;
   COMMIT;
