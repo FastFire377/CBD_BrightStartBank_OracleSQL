@@ -1099,12 +1099,12 @@ BEGIN
   FOR i IN 1..v_num_rows LOOP
     
     --GUARDAR VALOR RANDOM DE ID CONTA E GUARDAR VALOR DO PRIMEIRO CARTAO ASSOCIADO A ESSA CONTA
-    SELECT IDACCOUNT INTO v_idconta FROM (SELECT * FROM ACCOUNT_ ORDER BY dbms_random.value) WHERE rownum = 1;
-    SELECT idcard INTO v_idcard FROM (SELECT * FROM CARD_ WHERE idcard = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
-    SELECT idowner INTO v_idowner FROM (SELECT * FROM OWNER_ where IDOWNER = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
+    SELECT C.IDACCOUNT INTO v_idconta FROM (SELECT * FROM ACCOUNT_ ORDER BY dbms_random.value) C WHERE rownum = 1;
+    SELECT C.idcard INTO v_idcard FROM (SELECT * FROM CARD_ WHERE idcard = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
+    SELECT C.idowner INTO v_idowner FROM (SELECT * FROM OWNER_ where IDOWNER = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
     
     -- GUARDAR VALOR PARA NOME DA TRANSACAO
-    SELECT TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) WHERE rownum = 1;
+    SELECT C.TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) C WHERE rownum = 1;
 
     INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
     VALUES (
