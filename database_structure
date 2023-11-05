@@ -649,11 +649,25 @@ CREATE TABLE TRANSACTION_(
      idTransactionType NUMBER(9),
      idAccount NUMBER(9),
      idOwner NUMBER(9),
+     idRecipient_Account NUMBER(9),
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard) ON DELETE SET NULL,
     CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType) ON DELETE SET NULL,
     CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
-    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL
-)PARALLEL;
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL,
+    CONSTRAINT FK_Transaction_Recipient FOREIGN KEY (idRecipient_Account) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT CHK_TypeBtwnTwoAcc CHECK (NOT (idTransactionType = 5 AND idRecipient_Account IS NULL)), -- se for entre duas contas, o idrecipient não pode ser nulo
+    CONSTRAINT CHK_DIFTypeTwoAcc CHECK (NOT (idTransactionType <> 5 AND idRecipient_Account IS NOT NULL)), --se nao for entre duas contas, o idrecipient tem que ser nulo
+    CONSTRAINT CHK_AccDIFRecip CHECK (NOT (idAccount = idRecipient_Account)), --na transacao entre duas contas, o id da account nao pode ser igual ao do recepiente. Nao faz sentido.
+    CONSTRAINT CHK_Type5Not CHECK (NOT (idTransactionType = 5 AND amount <= 0)) --na transacao entre duas contas, o valor nao pode ser negativo. Nao se pode tirar dinheiro de outra conta
+)PARTITION BY RANGE (dateTransaction) (
+PARTITION
+OUT_2023 VALUES LESS THAN (TO_DATE('30 10 2023','dd mm yyyy')) TABLESPACE TRANSACTION_TABLE_SPACE,
+PARTITION
+NOV_2023 VALUES LESS THAN (TO_DATE('30 11 2023','dd mm yyyy')) TABLESPACE TRANSACTION_TABLE_SPACE,
+PARTITION
+ALL_months VALUES LESS THAN (MAXVALUE) TABLESPACE TRANSACTION_TABLE_SPACE
+)
+PARALLEL;
 /
 
 -->>>>>>>>>>>
