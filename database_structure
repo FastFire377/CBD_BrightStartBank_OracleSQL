@@ -135,20 +135,7 @@ DROP SEQUENCE TRANSACTIONTYPE_seq;
 DROP TABLE TRANSACTIONTYPE_;
 /
 
--->>>>>>>>>>>-------------------------------------------------------------------
 
-DROP TYPE AddressType;
-/
-
--->>>>>>>>>>>
-
-DROP TYPE ContactType;
-/
-
--->>>>>>>>>>>
-
-DROP TYPE multiObjectFunction;
-/
 -->>>>>>>>>>>-------------------------------------------------------------------
 
 DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
@@ -162,37 +149,6 @@ DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
 -->>>>>>>>>>>
 
 DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-/
-
--->>>>>>>>>>>-------------------------------------------------------------------
--- TYPES Address AND Contact.
--->>>>>>>>>>>-------------------------------------------------------------------
-
--->>>>>>>>>>> CREATE TYPE 
-
-CREATE TYPE AddressType AS OBJECT ( 
-    street VARCHAR(99),
-    districtProvince VARCHAR(99),
-    country VARCHAR(99)
-);
-/
-
--->>>>>>>>>>>-------------------------------------------------------------------
-
--->>>>>>>>>>> CREATE TYPE 
-
-CREATE TYPE ContactType AS OBJECT ( 
-    nin number(3),
-    Contact NUMBER(9),
-    email VARCHAR(99)
-);
-/
-
--->>>>>>>>>>>-------------------------------------------------------------------
-
--->>>>>>>>>>> CREATE TYPE (Array)
-
-CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -890,6 +846,17 @@ erroDate DATE
 
 ALTER TABLE HISTORYTRANSACTION_ MOVE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE;
 /
+
+CREATE OR REPLACE TRIGGER LOG_trg
+BEFORE INSERT ON LOG_
+FOR EACH ROW
+BEGIN
+  SELECT LOG_seq.NEXTVAL
+  INTO :new.idLog
+  FROM dual;
+END;
+/
+
 -->>>>>>>>>>> SEQUENCE
  
 CREATE SEQUENCE LOG_seq

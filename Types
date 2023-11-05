@@ -1,0 +1,45 @@
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP TYPE AddressType;
+/
+
+-->>>>>>>>>>>
+
+DROP TYPE ContactType;
+/
+
+-->>>>>>>>>>>
+
+DROP TYPE multiObjectFunction;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TYPES Address AND Contact.
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE 
+
+CREATE TYPE AddressType AS OBJECT ( 
+    street VARCHAR(99),
+    districtProvince VARCHAR(99),
+    country VARCHAR(99)
+);
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE 
+
+CREATE TYPE ContactType AS OBJECT ( 
+    nin number(3),
+    Contact NUMBER(9),
+    email VARCHAR(99)
+);
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+-->>>>>>>>>>> CREATE TYPE (Array)
+
+CREATE OR REPLACE TYPE multiObjectFunction AS TABLE OF VARCHAR2(50);
+/
