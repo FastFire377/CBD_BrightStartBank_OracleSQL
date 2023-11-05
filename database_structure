@@ -1,8 +1,89 @@
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- CLEAR DATABASE.
 -->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE AND TABLE TRANSACTION.
 
-DROP TRIGGER TRANSACTION_trg;
+DROP TRIGGER LOG_trg;
+/
+
+DROP SEQUENCE LOG_seq;
+/
+
+DROP TABLE LOG_;
+/
+
+DROP TRIGGER HISTORYTRANSACTION_trg;
+/
+
+DROP SEQUENCE HISTORYTRANSACTION_seq;
+/
+
+DROP TABLE HISTORYTRANSACTION_;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLESPACE HISTORYTRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- EXTERNAL TABLES
+
+DROP MATERIALIZED VIEW transaction_name_mview;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP MATERIALIZED VIEW unique_district_mview;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLE POSTCODE_EXT;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLE MUNICIPALITY_EXT;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLE DISTRICT_EXT;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLE TRANSACTIONNAME_EXT;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP DIRECTORY Location_Directory;
+/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE AND TABLE TRANSACTION.
+
+DROP INDEX idx_idOwner;
+/
+
+DROP INDEX idx_Transaction_idAccount;
+/
+
+DROP INDEX idx_idTransactionType;
+/
+
+DROP INDEX idx_idCard;
+/
+
+DROP TRIGGER UPDATE_DATE_TRANSACTION;
+/
+
+DROP TRIGGER CHECK_TRANSACTION_BALANCE_tgr;
+/
+
+DROP TRIGGER  TRANSACTION_trg;
 /
 
 DROP SEQUENCE TRANSACTION_seq;
@@ -11,23 +92,38 @@ DROP SEQUENCE TRANSACTION_seq;
 DROP TABLE TRANSACTION_;
 /
 
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
 -->>>>>>>>>---------------------------------------------------------------------
-DROP TABLE DISTRICT_EXT;
+-- TABLESPACE NORMALS AND TABLES AGENCY, EMPLOYEE, CLIENT, ACCOUNT AND CARD.
+
+DROP INDEX idx_nif;
 /
 
-DROP TABLE MUNICIPALITY_EXT;
+DROP INDEX idx_Owner_idAccount;
 /
 
-DROP TABLE POSTCODE_EXT;
-/
-DROP TABLE TRANSACTIONNAME_EXT;
-/
-DROP MATERIALIZED VIEW unique_district_mview;
+ALTER TABLE OWNER_ DROP COLUMN nif;
 /
 
--->>>>>>>>>>>-------------------------------------------------------------------
+DROP TRIGGER OWNER_trg;
+/
+
+DROP SEQUENCE OWNER_seq;
+/
+
+DROP TABLE OWNER_;
+/
+
+-->>>>>>>>>>>----------------------------------
 
 ALTER TABLE AGENCY_ DROP COLUMN IdManager;
+/
+
+DROP INDEX idx_idAccount;
 /
 
 DROP TRIGGER UPDATE_EXPIRATION_CARD;
@@ -42,21 +138,10 @@ DROP SEQUENCE CARD_seq;
 DROP TABLE CARD_;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>>----------------------------------
 
-ALTER TABLE OWNER_ DROP COLUMN nif;
+DROP INDEX idx_idAccountType;
 /
-
-DROP TRIGGER OWNER_trg;
-/
-
-DROP SEQUENCE OWNER_seq;
-/
-
-DROP TABLE OWNER_;
-/
-
--->>>>>>>>>>>
 
 ALTER TABLE ACCOUNT_ DROP COLUMN idAgency;
 /
@@ -76,7 +161,13 @@ DROP SEQUENCE ACCOUNT_seq;
 DROP TABLE ACCOUNT_;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>>----------------------------------
+
+DROP INDEX idx_ClientidAgency;
+/
+
+DROP INDEX idx_nameClient;
+/
 
 DROP TRIGGER UPDATE_AGE_CLIENT;
 /
@@ -84,15 +175,31 @@ DROP TRIGGER UPDATE_AGE_CLIENT;
 DROP TABLE CLIENT_;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>>----------------------------------
+
+DROP INDEX idx_idAgency;
+/
+
+DROP INDEX idx_iban;
+/
+
+DROP INDEX idx_surname;
+/
+
+DROP INDEX idx_nameEmployee;
+/
 
 DROP TRIGGER UPDATE_AGE_EMPLOYEE;
 /
 
+
 DROP TABLE EMPLOYEE_;
 /
 
--->>>>>>>>>>>
+-->>>>>>>>>>>----------------------------------
+
+DROP INDEX idx_id_name_agency;
+/
 
 DROP TRIGGER AGENCY_trg;
 /
@@ -102,29 +209,17 @@ DROP SEQUENCE AGENCY_seq;
 
 DROP TABLE AGENCY_;
 /
+
+-->>>>>>>>>>>----------------------------------
+
+DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
+-- TABLESPACE STATIC AND TABLES LOCATION, ACCOUNT TYPE AND TRANSACTION TYPE.
 
-DROP TRIGGER LOCATION_trg;
+DROP INDEX idx_id_name_transaction_type;
 /
-
-DROP SEQUENCE LOCATION_seq;
-/
-
-DROP TABLE LOCATION_;
-/
-
--->>>>>>>>>>>
-
-DROP TRIGGER ACCOUNTTYPE_trg;
-/
-
-DROP SEQUENCE ACCOUNTTYPE_seq;
-/
-
-DROP TABLE ACCOUNTTYPE_;
-/
-
--->>>>>>>>>>>
 
 DROP TRIGGER TRANSACTIONTYPE_trg;
 /
@@ -135,20 +230,37 @@ DROP SEQUENCE TRANSACTIONTYPE_seq;
 DROP TABLE TRANSACTIONTYPE_;
 /
 
+-->>>>>>>>>>>----------------------------------
 
--->>>>>>>>>>>-------------------------------------------------------------------
+DROP INDEX idx_id_name_account_type;
+/
+
+DROP TRIGGER ACCOUNTTYPE_trg;
+/
+
+DROP SEQUENCE ACCOUNTTYPE_seq;
+/
+
+DROP TABLE ACCOUNTTYPE_;
+/
+
+-->>>>>>>>>>>----------------------------------
+
+DROP INDEX idx_country_location;
+/
+
+DROP TRIGGER LOCATION_trg;
+/
+
+DROP SEQUENCE LOCATION_seq;
+/
+
+DROP TABLE LOCATION_;
+/
+
+-->>>>>>>>>>>----------------------------------
 
 DROP TABLESPACE STATIC_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-/
-
--->>>>>>>>>>>
-
-DROP TABLESPACE NORMALS_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-/
-
--->>>>>>>>>>>
-
-DROP TABLESPACE TRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
 /
 
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -313,10 +425,6 @@ CREATE TABLE AGENCY_(
 )PARALLEL;
 /
 
--->>>>>>>>>>> INDEX
-
-CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
-
 -->>>>>>>>>>>
 
 ALTER TABLE AGENCY_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
@@ -328,7 +436,7 @@ CREATE SEQUENCE AGENCY_seq
   START WITH 1
   INCREMENT BY 1;
 /
- 
+
 -->>>>>>>>>>> TRIGGER
 
 CREATE OR REPLACE TRIGGER AGENCY_trg
@@ -340,6 +448,10 @@ BEGIN
   FROM dual;
 END;
 /
+ 
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_id_name_agency ON AGENCY_(nameAgency);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -365,15 +477,6 @@ CREATE TABLE EMPLOYEE_(
 
 ALTER TABLE EMPLOYEE_ MOVE TABLESPACE NORMALS_TABLE_SPACE;
 /
--->>>>>>>>>>> INDEX
-
-CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
-
-CREATE INDEX idx_surname ON EMPLOYEE_(surname);
-
-CREATE INDEX idx_iban ON EMPLOYEE_(iban);
-
-CREATE INDEX idx_idAgency ON EMPLOYEE_(idAgency);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -394,6 +497,16 @@ BEGIN
   :new.age := TRUNC(MONTHS_BETWEEN(SYSDATE, :new.dateBirth) / 12);
 END;
 /
+
+-->>>>>>>>>>> INDEX
+
+CREATE INDEX idx_nameEmployee ON EMPLOYEE_(nameEmployee);
+
+CREATE INDEX idx_surname ON EMPLOYEE_(surname);
+
+CREATE INDEX idx_iban ON EMPLOYEE_(iban);
+
+CREATE INDEX idx_idAgency ON EMPLOYEE_(idAgency);
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
@@ -626,11 +739,6 @@ ALL_months VALUES LESS THAN (MAXVALUE) TABLESPACE TRANSACTION_TABLE_SPACE
 PARALLEL;
 /
 
--->>>>>>>>>>>
-
-ALTER TABLE TRANSACTION_ MOVE TABLESPACE TRANSACTION_TABLE_SPACE;
-/
-
 -->>>>>>>>>>> SEQUENCE
 
 CREATE SEQUENCE TRANSACTION_seq
@@ -639,6 +747,16 @@ CREATE SEQUENCE TRANSACTION_seq
 /
  
 -->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER TRANSACTION_trg
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+BEGIN
+  SELECT TRANSACTION_seq.NEXTVAL
+  INTO :new.idTransaction
+  FROM dual;
+END;
+/
 
 CREATE OR REPLACE TRIGGER CHECK_TRANSACTION_BALANCE_tgr ---> verifica se o montante numa transacao nao vai dar em valor negativo (i.e, ficar em dívida XD)
 BEFORE INSERT ON TRANSACTION_
@@ -656,17 +774,8 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER TRANSACTION_trg
-BEFORE INSERT ON TRANSACTION_
-FOR EACH ROW
-BEGIN
-  SELECT TRANSACTION_seq.NEXTVAL
-  INTO :new.idTransaction
-  FROM dual;
-END;
-/
-
 -->>>>>>>>>>> TRIGGER UPDATE EXPIRATION
+
 CREATE OR REPLACE TRIGGER UPDATE_DATE_TRANSACTION
 BEFORE INSERT ON TRANSACTION_
 FOR EACH ROW
@@ -693,6 +802,7 @@ CREATE INDEX idx_idOwner ON TRANSACTION_(idOwner);
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- EXTERNAL TABLES
 -->>>>>>>>>>>-------------------------------------------------------------------
+
 --DIRECTORY FOR EXTERNAL TABLES
 BEGIN
     EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY Location_Directory  as ''/home/oracle/src/location_files'''; -- MUDAR CONFORME ONDE ESTÃO OS FICHEIROS EXCEL
@@ -748,7 +858,9 @@ FIELDS TERMINATED BY ';'
 )
 LOCATION('MUNICIPALITY.csv')
 );
+
 -->>>>>>>>>>>>>>>>>CODIGO POSTAL
+
 CREATE TABLE POSTCODE_EXT
 (
     id_district NUMBER (25),
@@ -811,21 +923,6 @@ END;
 /
 --SELECT * FROM all_mviews; --Para ver todas as Materialized views
 
--->>>>>>>>>>>------------------------------------------------------------------- adicionado ver
-DROP SEQUENCE HISTORYTRANSACTION_seq;
-/
-
-DROP TABLE HISTORYTRANSACTION_;
-/
-
-DROP SEQUENCE LOG_seq;
-/
-
-DROP TABLE LOG_;
-/
-
-DROP TABLESPACE HISTORYTRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
-
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- TABLESPACE AND TABLE TRANSACTION.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -859,12 +956,26 @@ CREATE TABLE HISTORYTRANSACTION_ (
  
 ALTER TABLE HISTORYTRANSACTION_ MOVE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE;
 /
+
 -->>>>>>>>>>> SEQUENCE
  
 CREATE SEQUENCE HISTORYTRANSACTION_seq
   START WITH 1
   INCREMENT BY 1;
 /
+
+-->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER HISTORYTRANSACTION_trg
+BEFORE INSERT ON HISTORYTRANSACTION_
+FOR EACH ROW
+BEGIN
+  SELECT HISTORYTRANSACTION_seq.NEXTVAL
+  INTO :new.idHistoryTransaction
+  FROM dual;
+END;
+/
+
  -->>>>>>>>>>>-------------------------------------------------------------------
 CREATE TABLE LOG_(
 idLog NUMBER(10) PRIMARY KEY,
@@ -877,6 +988,15 @@ erroDate DATE
 ALTER TABLE HISTORYTRANSACTION_ MOVE TABLESPACE HISTORYTRANSACTION_TABLE_SPACE;
 /
 
+-->>>>>>>>>>> SEQUENCE
+ 
+CREATE SEQUENCE LOG_seq
+  START WITH 1
+  INCREMENT BY 1;
+/
+
+-->>>>>>>>>>> TRIGGER
+
 CREATE OR REPLACE TRIGGER LOG_trg
 BEFORE INSERT ON LOG_
 FOR EACH ROW
@@ -885,13 +1005,6 @@ BEGIN
   INTO :new.idLog
   FROM dual;
 END;
-/
-
--->>>>>>>>>>> SEQUENCE
- 
-CREATE SEQUENCE LOG_seq
-  START WITH 1
-  INCREMENT BY 1;
 /
  -->>>>>>>>>>>
  
