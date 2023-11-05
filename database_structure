@@ -979,9 +979,10 @@ END;
  -->>>>>>>>>>>-------------------------------------------------------------------
 CREATE TABLE LOG_(
 idLog NUMBER(10) PRIMARY KEY,
-errorMessage VARCHAR(50),
-errorLocation VARCHAR(10),
-erroDate DATE
+levelMensage varchar(25),
+codeMessage VARCHAR(999),
+actionLocation VARCHAR(50),
+logDate TIMESTAMP
 ) PARALLEL;
 /
 

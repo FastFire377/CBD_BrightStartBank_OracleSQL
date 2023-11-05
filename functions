@@ -111,7 +111,49 @@ CREATE OR REPLACE FUNCTION getFieldCount(
 -- PROCEDURES
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-- INSERT LOGS
+
+
+CREATE OR REPLACE PROCEDURE SP_LOG_INSERT (
+    levelMensageValue VARCHAR,
+    tableName VARCHAR,
+    errorValue VARCHAR
+) AS 
+BEGIN
+    DECLARE
+        v_getError varchar(999);
+        
+        v_getTable varchar(200);
+        
+        v_dateValue VARCHAR2(20);
+    BEGIN
+        v_getError := '' || errorValue;
+        
+        select getTableName(tableName) INTO v_getTable FROM dual;
+        
+        v_dateValue := TO_CHAR(SYSDATE, 'DD/MM/YYYY HH24:MI:SS');
+        
+        INSERT /*+ PARALLEL APPEND */ INTO LOG_ (levelMensage, codeMessage, actionLocation, logDate) VALUES ( levelMensageValue , v_getError, v_getTable, TO_TIMESTAMP(v_dateValue, 'DD/MM/YYYY HH24:MI:ss'));
+    END;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Insertion Error: ' || SQLERRM);
+END;
+/
+
+-->>>>>>>>>>
+/*
+BEGIN
+    SP_LOG_INSERT('TRANSACTION_', 'testee');
+END;
+/
+*/
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+
 -- INSERT 4 ALL
+
 
 CREATE OR REPLACE PROCEDURE SP_ALL_INSERT (
     tableName VARCHAR,
@@ -126,7 +168,9 @@ BEGIN
         v_values VARCHAR(200) := '';
         
         v_insert_query VARCHAR(200);
-    BEGIN
+    BEGIN     
+        SAVEPOINT startInsert;
+        
         select getTableName(tableName) INTO v_getTable FROM dual;
         
         ------------------------------------------------------------------------
@@ -157,14 +201,20 @@ BEGIN
         
         v_insert_query := 'INSERT /*+ PARALLEL APPEND */ INTO ' || v_getTable || ' (' || v_FieldNames || ') VALUES (''' || v_values || ''')';
         
-        EXECUTE IMMEDIATE v_insert_query; 
+        EXECUTE IMMEDIATE v_insert_query;
         COMMIT;
-        DBMS_OUTPUT.PUT_LINE('Reccord inserted');
+
+        BEGIN
+            SP_LOG_INSERT('Imformation', tableName, v_insert_query || ' - successful ');
+        END;
     END;
 EXCEPTION
     WHEN OTHERS THEN
-       ROLLBACK;
-       DBMS_OUTPUT.PUT_LINE('Insertion Error: ' || SQLERRM);
+        ROLLBACK TO startInsert;
+        
+        BEGIN
+            SP_LOG_INSERT('Error', tableName, SQLERRM);
+        END;
 END;
 /
 
@@ -175,7 +225,7 @@ DECLARE
 BEGIN
     insertValues := multiObjectFunction('value1', 'value2', 'value3', 'value4', 'value5');
 
-    --SP_ALL_INSERT('locat', insertValues);
+    --SP_ALL_INSERT('transaction_', insertValues);
 END;
 /
 
@@ -198,7 +248,8 @@ BEGIN
          
          v_insert_query VARCHAR(200);
      BEGIN
-     
+        SAVEPOINT startInsert;
+        
         select getTableName(u_tableName) INTO v_getTable FROM dual;
         select getFieldName(v_getTable, u_update(1)) INTO v_getFieldUpdate FROM dual;
         select getFieldName(v_getTable, u_condition(1)) INTO v_getFieldcondition FROM dual;
@@ -219,12 +270,18 @@ BEGIN
         
         EXECUTE IMMEDIATE v_insert_query; 
         COMMIT;
-        DBMS_OUTPUT.PUT_LINE('Reccord Updated');
+
+        BEGIN
+            SP_LOG_INSERT('Imformation', tableName, v_insert_query || ' - successful ');
+        END;
     END;
 EXCEPTION
     WHEN OTHERS THEN
-       ROLLBACK;
-       DBMS_OUTPUT.PUT_LINE('Updating Error: ' || SQLERRM);
+        ROLLBACK TO startInsert;
+        
+        BEGIN
+            SP_LOG_INSERT('Error', u_tableName, SQLERRM);
+        END;
 END;
 /
 
@@ -258,8 +315,10 @@ BEGIN
          
          v_insert_query VARCHAR(200);
      BEGIN
+        SAVEPOINT startInsert;
+        
         select getTableName(u_tableName) INTO v_getTable FROM dual;
-    select getFieldName(v_getTable, u_condition(1)) INTO v_getFieldcondition FROM dual;
+        select getFieldName(v_getTable, u_condition(1)) INTO v_getFieldcondition FROM dual;
     
         ------------------------------------------------------------------------
         
@@ -277,12 +336,18 @@ BEGIN
         
         EXECUTE IMMEDIATE v_insert_query; 
         COMMIT;
-        DBMS_OUTPUT.PUT_LINE('Reccord Deleted');
+
+        BEGIN
+            SP_LOG_INSERT('Imformation', tableName, v_insert_query || ' - successful ');
+        END;
     END;
 EXCEPTION
     WHEN OTHERS THEN
-       ROLLBACK;
-       DBMS_OUTPUT.PUT_LINE('Deleting Error: ' || SQLERRM);
+        ROLLBACK TO startInsert;
+    
+        BEGIN
+            SP_LOG_INSERT('Error', u_tableName, SQLERRM);
+        END;
 END;
 /
 
