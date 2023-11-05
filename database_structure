@@ -684,6 +684,22 @@ CREATE SEQUENCE TRANSACTION_seq
  
 -->>>>>>>>>>> TRIGGER
 
+CREATE OR REPLACE TRIGGER CHECK_TRANSACTION_BALANCE_tgr ---> verifica se o montante numa transacao nao vai dar em valor negativo (i.e, ficar em dívida XD)
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+DECLARE
+    account_balance NUMBER(12,2);
+BEGIN
+ 
+    SELECT balance INTO account_balance FROM ACCOUNT_ WHERE idAccount = :NEW.idAccount;
+ 
+ 
+    IF account_balance + :NEW.amount < 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'The amount on the withdrawl cant be bigger than the balance on the account. Please insert values that are smaller than ' || -:NEW.amount || '€');
+    END IF;
+END;
+/
+
 CREATE OR REPLACE TRIGGER TRANSACTION_trg
 BEFORE INSERT ON TRANSACTION_
 FOR EACH ROW
