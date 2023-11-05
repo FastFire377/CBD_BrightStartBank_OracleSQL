@@ -21,6 +21,9 @@ DROP SEQUENCE HISTORYTRANSACTION_seq;
 DROP TABLE HISTORYTRANSACTION_;
 /
 
+DROP TRIGGER CHECK_ACCOUNT_FROZEN_tgr;
+/
+
 -->>>>>>>>>>>----------------------------------
 
 DROP TABLESPACE HISTORYTRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
@@ -767,9 +770,9 @@ BEGIN
  
     SELECT balance INTO account_balance FROM ACCOUNT_ WHERE idAccount = :NEW.idAccount;
  
- 
+    
     IF account_balance + :NEW.amount < 0 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'The amount on the withdrawl cant be bigger than the balance on the account. Please insert values that are smaller than ' || -:NEW.amount || '€');
+        RAISE_APPLICATION_ERROR(-20001, 'The amount on the transaction cant be bigger than the balance on the account. Please insert values that arent bigger than ' || account_balance || '€');
     END IF;
 END;
 /
@@ -1009,3 +1012,20 @@ END;
 /
  -->>>>>>>>>>>
  
+
+ CREATE OR REPLACE TRIGGER CHECK_ACCOUNT_FROZEN_tgr ---> Verifica se o a conta a que vai fazer a transacao esta congelada ou nao
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+DECLARE
+    v_account_status VARCHAR(10);
+BEGIN
+    -- Get the status of the account associated with the transaction
+    SELECT status INTO v_account_status
+    FROM ACCOUNT_
+    WHERE idAccount = :NEW.idAccount;
+
+    IF v_account_status = 'congelada' THEN
+        RAISE_APPLICATION_ERROR(-20001, 'CHK_FrozenAccount constraint violation: Account is frozen');
+    END IF;
+END;
+/
