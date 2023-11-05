@@ -13,6 +13,9 @@ DROP PROCEDURE SP_ALL_DELETE;
 
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+DROP TRIGGER CHECK_TRANSACTION_BALANCE_tgr;
+/
+
 DROP TRIGGER TRANSACTION_trg;
 /
 
@@ -683,10 +686,16 @@ CREATE TABLE TRANSACTION_(
      idTransactionType NUMBER(9),
      idAccount NUMBER(9),
      idOwner NUMBER(9),
+     idRecipient_Account NUMBER(9),
     CONSTRAINT FK_Transaction_AcountCard FOREIGN KEY (idCard) REFERENCES CARD_(idCard) ON DELETE SET NULL,
     CONSTRAINT FK_TransactionType FOREIGN KEY (idTransactionType) REFERENCES TRANSACTIONTYPE_(idTransactionType) ON DELETE SET NULL,
     CONSTRAINT FK_Transaction_Account FOREIGN KEY (idAccount) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
-    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL
+    CONSTRAINT FK_Card_Owner FOREIGN KEY (idOwner) REFERENCES OWNER_(idOwner) ON DELETE SET NULL,
+    CONSTRAINT FK_Transaction_Recipient FOREIGN KEY (idRecipient_Account) REFERENCES ACCOUNT_(idAccount) ON DELETE SET NULL,
+    CONSTRAINT CHK_TypeBtwnTwoAcc CHECK (NOT (idTransactionType = 5 AND idRecipient_Account IS NULL)), -- se for entre duas contas, o idrecipient não pode ser nulo
+    CONSTRAINT CHK_DIFTypeTwoAcc CHECK (NOT (idTransactionType <> 5 AND idRecipient_Account IS NOT NULL)), --se nao for entre duas contas, o idrecipient tem que ser nulo
+    CONSTRAINT CHK_AccDIFRecip CHECK (NOT (idAccount = idRecipient_Account)), --na transacao entre duas contas, o id da account nao pode ser igual ao do recepiente. Nao faz sentido.
+    CONSTRAINT CHK_Type5Not CHECK (NOT (idTransactionType = 5 AND amount <= 0)) --na transacao entre duas contas, o valor nao pode ser negativo. Nao se pode tirar dinheiro de outra conta
 )PARALLEL;
 /
 
@@ -703,6 +712,22 @@ CREATE SEQUENCE TRANSACTION_seq
 /
  
 -->>>>>>>>>>> TRIGGER
+
+CREATE OR REPLACE TRIGGER CHECK_TRANSACTION_BALANCE_tgr ---> verifica se o montante numa transacao nao vai dar em valor negativo (i.e, ficar em dívida XD)
+BEFORE INSERT ON TRANSACTION_
+FOR EACH ROW
+DECLARE
+    account_balance NUMBER(12,2);
+BEGIN
+ 
+    SELECT balance INTO account_balance FROM ACCOUNT_ WHERE idAccount = :NEW.idAccount;
+ 
+ 
+    IF account_balance + :NEW.amount < 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'The amount on the withdrawl cant be bigger than the balance on the account. Please insert values that are smaller than ' || -:NEW.amount || '€');
+    END IF;
+END;
+/
 
 CREATE OR REPLACE TRIGGER TRANSACTION_trg
 BEFORE INSERT ON TRANSACTION_
