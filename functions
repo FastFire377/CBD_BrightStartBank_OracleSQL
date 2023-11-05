@@ -8,6 +8,9 @@ DROP PROCEDURE SP_ALL_UPDATE;
 DROP PROCEDURE SP_ALL_DELETE;
 /
 
+DROP PROCEDURE insert_transaction;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- FUnctions.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -296,3 +299,81 @@ BEGIN
     --SP_ALL_DELETE('ACCOUNTTYP', coditionValues);
 END;
 /
+
+-->>>>>>>>>>>-------------------------------------------------------------------
+-->> PROCEDURE PARA INSERCAO DE REGISTOS DE TRANSACAO
+CREATE OR REPLACE PROCEDURE insert_transaction(
+    amount_VAR NUMBER,
+    dateTransaction_VAR DATE,
+    nameTransaction_VAR VARCHAR,
+    status_VAR VARCHAR,
+    idCard_VAR NUMBER,
+    idTransactionType_VAR NUMBER,
+    idAccount_VAR NUMBER,
+    idOwner_VAR NUMBER,
+    idRecipient_Account_VAR NUMBER
+) AS
+    v_account_status VARCHAR(10);
+BEGIN
+
+    SELECT status INTO v_account_status FROM ACCOUNT_ WHERE idAccount = idAccount_VAR; --Obtain the status of the account
+    
+    
+    IF idTransactionType_VAR = 5 THEN
+        IF idRecipient_Account_VAR IS NULL THEN         
+            DBMS_OUTPUT.PUT_LINE('CHK_TypeBtwnTwoAcc constraint violation');
+        ELSIF idAccount_VAR = idRecipient_Account_VAR THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_AccDIFRecip constraint violation');
+        ELSIF v_account_status = 'congelada' THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_FrozenAccount constraint violation');
+        ELSE
+            --CONSTRAINTS PASSARAM
+            INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner, idRecipient_Account)
+            VALUES (DEFAULT, amount_VAR, dateTransaction_VAR, status_VAR, nameTransaction_VAR, idCard_VAR, idTransactionType_VAR, idAccount_VAR, idOwner_VAR, idRecipient_Account_VAR);
+
+            --RETIRAR DO EMISSARIO
+            UPDATE ACCOUNT_
+            SET balance = balance + amount_VAR
+            WHERE idAccount = idAccount_VAR;
+
+            --ADICIONAR AO RECEPIENTE
+            UPDATE ACCOUNT_
+            SET balance = balance - amount_VAR
+            WHERE idAccount = idRecipient_Account_VAR;
+        END IF;
+    ELSIF idTransactionType_VAR <> 5 THEN
+        -- Check CONSTRAINTS before performing updates
+        IF idRecipient_Account_VAR IS NOT NULL THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_DIFTypeTwoAcc constraint violation');
+        ELSE
+            -- All constraints passed, proceed with the updates
+            INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
+            VALUES (DEFAULT, amount_VAR, dateTransaction_VAR, status_VAR, nameTransaction_VAR, idCard_VAR, idTransactionType_VAR, idAccount_VAR, idOwner_VAR);
+
+            --RETIRAR/ADICIONAR AO EMISSARIO
+            UPDATE ACCOUNT_
+            SET balance = balance + amount_VAR
+            WHERE idAccount = idAccount_VAR;
+        END IF;
+    END IF;
+END;
+/
+
+
+/*
+BEGIN insert_transaction(
+        10, -- amount_VAR
+        TO_DATE('2023-11-05', 'YYYY-MM-DD'), -- dateTransaction_VAR
+        'Example Transaction', -- nameTransaction_VAR
+        'processando', -- status_VAR
+        1, -- idCard_VAR
+        5, -- idTransactionType_VAR
+        2, -- idAccount_VAR
+        1, -- idOwner_VAR
+        1 -- idRecipient_Account_VAR
+    );
+    COMMIT;
+END;
+/
+
+*/

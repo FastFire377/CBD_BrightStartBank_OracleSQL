@@ -177,7 +177,7 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
     VALUES (DEFAULT, '100.00', TO_DATE('2023-10-18', 'YYYY-MM-DD'), 'concluido', 'salario', 1, 1 ,1 ,1)
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
-    VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 2, 2, 2, 2)
+    VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 1, 1, 1, 1)
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
     VALUES (DEFAULT, '150.00', TO_DATE('2023-10-20', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 3, 3, 3)
 SELECT * FROM DUAL;
