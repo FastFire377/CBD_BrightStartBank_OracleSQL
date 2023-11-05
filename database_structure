@@ -941,6 +941,7 @@ MAXSIZE UNLIMITED;
 -->>>>>>>>>>> CREATE TABLE
 CREATE TABLE HISTORYTRANSACTION_ (
     idHistoryTransaction NUMBER(10) PRIMARY KEY,
+    tranferDate DATE,
     idTransaction NUMBER(10),
     amount NUMBER(12,2),
     dateTransaction date,
