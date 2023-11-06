@@ -1014,19 +1014,25 @@ END;
  -->>>>>>>>>>>
  
 
- CREATE OR REPLACE TRIGGER CHECK_ACCOUNT_FROZEN_tgr ---> Verifica se o a conta a que vai fazer a transacao esta congelada ou nao
+CREATE OR REPLACE TRIGGER CHECK_ACCOUNT_FROZEN_tgr ---> Verifica se as contas que vao fazer a transacao esta congelada ou nao
 BEFORE INSERT ON TRANSACTION_
 FOR EACH ROW
 DECLARE
-    v_account_status VARCHAR(10);
+    account_status VARCHAR(10);
+    recipient_status VARCHAR(10);
 BEGIN
-    -- Get the status of the account associated with the transaction
-    SELECT status INTO v_account_status
+    SELECT status INTO account_status
     FROM ACCOUNT_
     WHERE idAccount = :NEW.idAccount;
+    
+    IF :NEW.idRecipient_Account IS NOT NULL THEN
+        SELECT status INTO recipient_status
+        FROM ACCOUNT_
+        WHERE idAccount = :NEW.idRecipient_Account;
+    END IF;
 
-    IF v_account_status = 'congelada' THEN
-        RAISE_APPLICATION_ERROR(-20001, 'CHK_FrozenAccount constraint violation: Account is frozen');
+    IF account_status = 'congelada' OR (recipient_status IS NOT NULL AND recipient_status = 'congelada') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'CHK_FrozenAccount constraint violation: One of the accounts is frozen. Make sure neither of the accounts in the transaction is frozen');
     END IF;
 END;
 /
