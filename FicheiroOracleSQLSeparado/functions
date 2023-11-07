@@ -463,7 +463,7 @@ BEGIN
     SELECT * INTO v_name_transaction FROM (SELECT transactionname FROM Transaction_name_mview ORDER BY dbms_random.value) WHERE rownum = 1;
     
     --CONFORME LIMITE DO TIPO DE TRANSACAO CRIAR VARIAVEL COM LIMITE
-    SELECT idTransactionType INTO v_idTransactionType FROM (SELECT * FROM TRANSACTIONTYPE_ ORDER BY dbms_random.value) WHERE rownum = 1;
+    SELECT idTransactionType INTO v_idTransactionType FROM (SELECT * FROM TRANSACTIONTYPE_ WHERE idTransactionType != 5 ORDER BY dbms_random.value) WHERE rownum = 1;
     SELECT limittransaction INTO v_MoneyLimit FROM TRANSACTIONTYPE_ WHERE idTransactionType = v_idTransactionType;
     
     INSERT INTO TRANSACTION_ (IDTRANSACTION, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
