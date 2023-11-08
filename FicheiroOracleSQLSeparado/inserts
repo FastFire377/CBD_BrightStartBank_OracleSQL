@@ -1,4 +1,3 @@
-
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- INSERTS.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -69,6 +68,18 @@ INSERT /*+ APPEND PARALLEL */ ALL
     VALUES ('Agencia Betclick', '10:00 - 17:00', 3, 3)
     INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
     VALUES ('Agencia Vamos Apostar', '9:30 - 17:00', 3, 4)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Apostas', '9:00 - 12:00', 3, 5)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Rokubet', '10:30 - 15:00', 3, 6)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia CSGO500', '9:30 - 19:00', 3, 7)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Dell', '9:30 - 17:00', 3, 8)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia Apple', '12:00 - 20:00', 3, 9)
+    INTO AGENCY_ (nameAgency, openingHours, NEmployees, idLocation) 
+    VALUES ('Agencia LOL', '16:30 - 19:00', 3, 10)
     -- Add more INTO clauses as needed for additional agencies
 SELECT * FROM dual;
 /
@@ -79,14 +90,63 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
     VALUES (123456789, 'Pedro', 'Gonçalves', ContactType(111, 111111111, 'pedro@gmail.com'), AddressType('Rua Marmelo', 'Faro', 'Portugal'), 20, TO_DATE('2003-06-26', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 10000, 1)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact,  address, age, dateBirth, iban, JobRole, salary, idAgency) 
-    VALUES (987654321, 'Ricardo', 'Vilhena', ContactType(222, 222222222, 'ricardo@gmail.com'), AddressType('Rua MeM', 'Braga', 'Portugal'), 18, TO_DATE('2004-12-18', 'YYYY-MM-DD'), 'DEF987654321', 'Chefe Markting', 7500, 2)
+    VALUES (987654321, 'Ricardo', 'Vilhena', ContactType(222, 222222222, 'ricardo@gmail.com'), AddressType('Rua MeM', 'Braga', 'Portugal'), 18, TO_DATE('2004-12-18', 'YYYY-MM-DD'), 'DEF987654321', 'Chefe Markting', 7500, 1)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
-    VALUES (234567230, ';Marco', 'Valente',ContactType(333, 33333333, 'marco@gmail.com'), AddressType('Rua Vodka', 'LIsboa', 'Portugal'), 21, TO_DATE('2002-06-06', 'YYYY-MM-DD'), 'GHI234567890', 'Chefe Designe ', 8000, 1)
+    VALUES (234567230, 'Marco', 'Valente',ContactType(333, 33333333, 'marco@gmail.com'), AddressType('Rua Vodka', 'LIsboa', 'Portugal'), 21, TO_DATE('2002-06-06', 'YYYY-MM-DD'), 'GHI234567890', 'Chefe Designe ', 8000, 1)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
-    VALUES (234567890, ';Rodrigo', 'Pimenta',ContactType(444, 444444444, 'rodrigo@gmail.com'), AddressType('Rua Getto', 'Coimbra', 'Portugal'), 20, TO_DATE('2003-06-15', 'YYYY-MM-DD'), 'GHI234567890', 'Rececionista', 2000, 3)
+    VALUES (234567890, 'Rodrigo', 'Pimenta',ContactType(444, 444444444, 'rodrigo@gmail.com'), AddressType('Rua Getto', 'Coimbra', 'Portugal'), 20, TO_DATE('2003-06-15', 'YYYY-MM-DD'), 'GHI234567890', 'Rececionista', 2000, 2)
     INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
-    VALUES (234127890, ';Lucas', 'Martins',ContactType(555, 555555555, 'lucas@gmail.com'), AddressType('Rua Ginasio', 'Beja', 'Portugal'), 20, TO_DATE('2003-08-16', 'YYYY-MM-DD'), 'GHI234567890', 'Homem das Limpezas ', 1000, 2)
-        -- Add more INTO clauses as needed for additional employees
+    VALUES (234127890, 'Lucas', 'Martins',ContactType(555, 555555555, 'lucas@gmail.com'), AddressType('Rua Ginasio', 'Beja', 'Portugal'), 20, TO_DATE('2003-08-16', 'YYYY-MM-DD'), 'GHI234567890', 'Homem das Limpezas ', 1000, 2)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234127890, 'Sofia', 'Martins',ContactType(555, 555555555, 'lucas@gmail.com'), AddressType('Rua Ginasio', 'Beja', 'Portugal'), 20, TO_DATE('2003-08-16', 'YYYY-MM-DD'), 'GHI234567890', 'Homem das Limpezas ', 1000, 2)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234127890, 'João', 'Silva', ContactType(555, 555555555, 'joao@gmail.com'), AddressType('Rua Alegria', 'Lisboa', 'Portugal'), 25, TO_DATE('1998-05-10', 'YYYY-MM-DD'), 'ABC123456789', 'Gerente', 2500, 3)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234765432, 'Maria', 'Santos', ContactType(555, 555555555, 'maria@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'DEF987654321', 'Assistente', 1500, 3)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Francisco', 'Pereira', ContactType(555, 555555555, 'francisco@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'GHI123456789', 'Técnico', 1800, 3)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234654321, 'Leonor', 'Ferreira', ContactType(555, 555555555, 'leonor@gmail.com'), AddressType('Rua da Praia', 'Faro', 'Portugal'), 24, TO_DATE('1999-08-05', 'YYYY-MM-DD'), 'JKL987654321', 'Assistente', 1500, 4)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Martim', 'Rodrigues', ContactType(555, 555555555, 'martim@gmail.com'), AddressType('Largo da Cidade', 'Évora', 'Portugal'), 26, TO_DATE('1997-01-30', 'YYYY-MM-DD'), 'MNO123456789', 'Gerente', 2500, 4)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234234567, 'Inês', 'Sousa', ContactType(555, 555555555, 'ines@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'PQR987654321', 'Técnico', 1800, 4)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Rodrigo', 'Costa', ContactType(555, 555555555, 'rodrigo@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'STU123456789', 'Assistente', 1500, 5)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234654321, 'Carolina', 'Oliveira', ContactType(555, 555555555, 'carolina@gmail.com'), AddressType('Rua da Praia', 'Faro', 'Portugal'), 24, TO_DATE('1999-08-05', 'YYYY-MM-DD'), 'VWX987654321', 'Assistente', 1500, 5)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Matilde', 'Gonçalves', ContactType(555, 555555555, 'matilde@gmail.com'), AddressType('Rua Alegria', 'Lisboa', 'Portugal'), 25, TO_DATE('1998-05-10', 'YYYY-MM-DD'), 'ABC123456789', 'Assistente', 1500, 5)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234765432, 'Diogo', 'Ribeiro', ContactType(555, 555555555, 'diogo@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'DEF987654321', 'Técnico', 1800, 6)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Madalena', 'Fonseca', ContactType(555, 555555555, 'madalena@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'GHI123456789', 'Assistente', 1500, 6)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234654321, 'Guilherme', 'Vieira', ContactType(555, 555555555, 'guilherme@gmail.com'), AddressType('Rua da Praia', 'Faro', 'Portugal'), 24, TO_DATE('1999-08-05', 'YYYY-MM-DD'), 'JKL987654321', 'Técnico', 1800, 6)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Beatriz', 'Campos', ContactType(555, 555555555, 'beatriz@gmail.com'), AddressType('Largo da Cidade', 'Évora', 'Portugal'), 26, TO_DATE('1997-01-30', 'YYYY-MM-DD'), 'MNO123456789', 'Gerente', 2500, 7)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234234567, 'Vasco', 'Dias', ContactType(555, 555555555, 'vasco@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'PQR987654321', 'Técnico', 1800, 7)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Mafalda', 'Freitas', ContactType(555, 555555555, 'mafalda@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'STU123456789', 'Assistente', 1500, 7)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Duarte', 'Lopes', ContactType(555, 555555555, 'duarte@gmail.com'), AddressType('Rua Alegria', 'Lisboa', 'Portugal'), 25, TO_DATE('1998-05-10', 'YYYY-MM-DD'), 'ABC123456789', 'Assistente', 1500, 8)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234765432, 'Clara', 'Rosa', ContactType(555, 555555555, 'clara@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'DEF987654321', 'Técnico', 1800, 8)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Simão', 'Fernandes', ContactType(555, 555555555, 'simao@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'GHI123456789', 'Assistente', 1500, 8)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Gabriel', 'Correia', ContactType(555, 555555555, 'gabriel@gmail.com'), AddressType('Largo da Cidade', 'Évora', 'Portugal'), 26, TO_DATE('1997-01-30', 'YYYY-MM-DD'), 'MNO123456789', 'Gerente', 2500, 9)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234234567, 'Luísa', 'Carvalho', ContactType(555, 555555555, 'luisa@gmail.com'), AddressType('Avenida Principal', 'Porto', 'Portugal'), 30, TO_DATE('1993-03-15', 'YYYY-MM-DD'), 'PQR987654321', 'Técnico', 1800, 9)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234890123, 'Francisco', 'Sousa', ContactType(555, 555555555, 'francisco@gmail.com'), AddressType('Rua Central', 'Coimbra', 'Portugal'), 28, TO_DATE('1994-11-21', 'YYYY-MM-DD'), 'STU123456789', 'Assistente', 1500, 9)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234654321, 'Maria', 'Almeida', ContactType(555, 555555555, 'maria@gmail.com'), AddressType('Rua da Praia', 'Faro', 'Portugal'), 24, TO_DATE('1999-08-05', 'YYYY-MM-DD'), 'VWX987654321', 'Assistente', 1500, 10)
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234123890, 'Afonso', 'Dias', ContactType(555, 555555555, 'afonso@gmail.com'), AddressType('Largo da Cidade', 'Évora', 'Portugal'), 26, TO_DATE('1997-01-30', 'YYYY-MM-DD'), 'MNO123456789', 'Gerente', 2500, 10);
+    INTO EMPLOYEE_ (nif, nameEmployee, surname, Contact, address, age, dateBirth, iban, JobRole, salary, idAgency) 
+    VALUES (234112233, 'Clara', 'Rodrigues', ContactType(555, 555555555, 'clara@gmail.com'), AddressType('Avenida Central', 'Lisboa', 'Portugal'), 29, TO_DATE('1993-07-12', 'YYYY-MM-DD'), 'ABC112233445', 'Técnico', 1900, 10);
 SELECT * FROM dual;
 /
 
@@ -112,6 +172,11 @@ INSERT /*+ APPEND PARALLEL */ ALL
     VALUES (TO_DATE('2023-02-20', 'YYYY-MM-DD'), 7000.00, 'congelada',2, 2)
     INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType) 
     VALUES (TO_DATE('2023-03-10', 'YYYY-MM-DD'), 3000.00, 'normal',1, 3)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType)
+    VALUES (TO_DATE('2023-09-10', 'YYYY-MM-DD'), 30000.00, 'normal',5, 4)
+    INTO ACCOUNT_ (creationDate, balance, status,idAgency, idAccountType)
+    VALUES (TO_DATE('2023-09-17', 'YYYY-MM-DD'), 38000.00, 'normal',8, 1)
+
     -- Add more INTO clauses as needed for additional accounts
 SELECT * FROM dual;
 /
@@ -125,7 +190,10 @@ INSERT /*+ APPEND PARALLEL */ ALL
     VALUES (5678, 456, 'Credito', 2)
     INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
     VALUES (9868, 123, 'Debito', 3)
-    -- Add more INTO clauses as needed for additional cards
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (1011, 457, 'Debito', 4)
+    INTO CARD_ (pin, CVC, cardTYpe, idAccount) 
+    VALUES (1213, 934, 'Credito', 5)
 SELECT * FROM dual;
 /
 
@@ -138,8 +206,58 @@ INSERT /*+ APPEND PARALLEL */ ALL
     VALUES (2, 987654321, 2)
     INTO OWNER_ (idAccount, nif, ownership) 
     VALUES (3, 234567890, 1)
-    -- Add more INTO clauses as needed for additional owner records
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (4, 1357924680, 1)
+    INTO OWNER_ (idAccount, nif, ownership) 
+    VALUES (5, 5432167890, 1)
 SELECT * FROM dual;
+/
+
+-->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
+
+CREATE OR REPLACE PROCEDURE InsertRandomTransactions AS
+  v_num_rows NUMBER := 5;
+  v_name_transaction VARCHAR2(45);
+  v_idconta NUMBER;
+  v_idcard NUMBER;
+  v_idowner NUMBER;
+  v_idTransactionType NUMBER;
+  v_Moneylimit NUMBER;
+BEGIN
+  FOR i IN 1..v_num_rows LOOP
+    -- GUARDAR VALOR RANDOM DE ID CONTA E GUARDAR VALOR DO PRIMEIRO CARTAO ASSOCIADO A ESSA CONTA
+    SELECT C.IDACCOUNT INTO v_idconta FROM (SELECT * FROM ACCOUNT_ ORDER BY dbms_random.value) C WHERE rownum = 1;
+    SELECT C.idcard INTO v_idcard FROM (SELECT * FROM CARD_ WHERE idcard = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
+    SELECT C.idowner INTO v_idowner FROM (SELECT * FROM OWNER_ where IDOWNER = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
+    
+    -- GUARDAR VALOR PARA NOME DA TRANSACAO
+    SELECT C.TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) C WHERE rownum = 1;
+    
+    --CONFORME LIMITE DO TIPO DE TRANSACAO CRIAR VARIAVEL COM LIMITE
+    SELECT C.idTransactionType INTO v_idTransactionType FROM (SELECT * FROM TRANSACTIONTYPE_ ORDER BY dbms_random.value) C WHERE rownum = 1;
+    SELECT C.limittransaction INTO v_MoneyLimit FROM TRANSACTIONTYPE_ C WHERE idTransactionType = v_idTransactionType;
+    
+    INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
+    VALUES (
+      NULL, -- auto increment
+      FLOOR(DBMS_RANDOM.value * v_MoneyLimit) + 1, -- amount
+      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')), -- date da Transaction
+      v_name_transaction, -- transaction name
+      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
+      v_idcard, -- card id
+      v_idTransactionType, -- id transaction type
+      v_idconta, -- id account
+      v_idowner -- id owner
+    );
+  END LOOP;
+  COMMIT;
+END InsertRandomTransactions;
+/
+
+
+BEGIN
+  InsertRandomTransactions;
+END;
 /
 
 -->>>>>>>>>>> TRANSACTION
@@ -150,7 +268,7 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
     VALUES (DEFAULT, '100.00', TO_DATE('2023-10-18', 'YYYY-MM-DD'), 'concluido', 'salario', 1, 1 ,1 ,1)
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
-    VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 1, 1, 1, 1)
+    VALUES (DEFAULT, '200.00', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'processando', 'salario', 2, 2, 2, 2)
     INTO TRANSACTION_ (idTransaction, amount, dateTransaction, status, nameTransaction, idCard, idTransactionType, idAccount, idOwner)
     VALUES (DEFAULT, '150.00', TO_DATE('2023-10-20', 'YYYY-MM-DD'), 'concluido', 'salario', 3, 3, 3, 3)
 SELECT * FROM DUAL;

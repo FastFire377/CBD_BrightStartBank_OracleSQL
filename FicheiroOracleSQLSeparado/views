@@ -105,6 +105,17 @@ GROUP BY C.nif, C.nameClient;
 
 
 -->>>>>>>>>>> ACCOUNT
+-- Show ClientName / AccountType / Balance
+CREATE OR REPLACE VIEW ClientAccountBalance AS
+SELECT
+    C.nameClient AS ClientName,
+    AT.nameAccountType AS AccountType,
+    A.balance AS Balance
+FROM CLIENT_ C
+JOIN OWNER_ O ON C.nif = O.nif
+JOIN ACCOUNT_ A ON O.idAccount = A.idAccount
+JOIN ACCOUNTTYPE_ AT ON A.idAccountType = AT.idAccountType;
+/
 --Show account / idagency / acctype
 CREATE OR REPLACE VIEW ShowAccountIdAgencyAcctype AS
 SELECT
@@ -116,8 +127,32 @@ FROM ACCOUNT_ A
 JOIN ACCOUNTTYPE_ AT ON A.idAccountType = AT.idAccountType
 WHERE A.idAgency = 1;
 /
-
-
+--Show AccountHighestBalanceAgency
+--RANK() function in SQL is a window function that assigns a unique rank to each row; This assigns a rank to each account within the agency. 
+--PARTITION BY clause ensures that ranking is done separately for each agency
+--CTE(RankedAccounts) is a temporary result set that is used within the main query.
+CREATE OR REPLACE VIEW AccountHighestBalanceAgency AS
+WITH RankedAccounts AS (
+    SELECT
+        A.idAccount AS AccountID,
+        A.balance AS HighestBalance,
+        A.idAgency AS AgencyID,
+        AG.nameAgency AS AgencyName,
+        C.nameClient AS ClientName,
+        RANK() OVER (PARTITION BY A.idAgency ORDER BY A.balance DESC) AS BalanceRank
+    FROM ACCOUNT_ A
+    JOIN CLIENT_ C ON A.idAgency = C.idAgency
+    JOIN AGENCY_ AG ON A.idAgency = AG.idAgency
+)
+SELECT
+    AccountID,
+    HighestBalance,
+    AgencyID,
+    ClientName,
+    AgencyName
+FROM RankedAccounts
+WHERE BalanceRank = 1;
+/
 
 -->>>>>>>>>>> CARD
 -- Show only cardType Debito
@@ -192,4 +227,3 @@ SELECT
 FROM TRANSACTION_
 WHERE status = 'concluido';
 /
-
