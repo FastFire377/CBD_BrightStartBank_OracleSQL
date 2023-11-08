@@ -1312,6 +1312,17 @@ GROUP BY C.nif, C.nameClient;
 
 
 -->>>>>>>>>>> ACCOUNT
+-- Show ClientName / AccountType / Balance
+CREATE OR REPLACE VIEW ClientAccountBalance AS
+SELECT
+    C.nameClient AS ClientName,
+    AT.nameAccountType AS AccountType,
+    A.balance AS Balance
+FROM CLIENT_ C
+JOIN OWNER_ O ON C.nif = O.nif
+JOIN ACCOUNT_ A ON O.idAccount = A.idAccount
+JOIN ACCOUNTTYPE_ AT ON A.idAccountType = AT.idAccountType;
+/
 --Show account / idagency / acctype
 CREATE OR REPLACE VIEW ShowAccountIdAgencyAcctype AS
 SELECT
