@@ -142,33 +142,6 @@ INSERT /*+ APPEND PARALLEL */ ALL
 SELECT * FROM dual;
 /
 
--->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
-
-DECLARE
-  v_num_rows NUMBER := 1;
-  v_name_transaction VARCHAR2(45);
-BEGIN
-  FOR i IN 1..v_num_rows LOOP
-
-    SELECT C.TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) C WHERE rownum = 1;
-
-    INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
-    VALUES (
-      NULL, -- auto increment
-      FLOOR(DBMS_RANDOM.value * 1000000) + 1, -- amount
-      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')),
-      v_name_transaction, -- transaction name
-      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idCard) FROM Card_)) + 1, -- card id
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idTransactionType) FROM TransactionType_)) + 1, -- id transaction type
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idAccount) FROM Account_)) + 1, -- id account
-      FLOOR(DBMS_RANDOM.value * (SELECT Count(idOwner) FROM Owner_)) + 1 -- id owner
-    );
-  END LOOP;
-  COMMIT;
-END;
-/
-
 -->>>>>>>>>>> TRANSACTION
 
 -- Inserting multiple rows into the TRANSACTION_ table
