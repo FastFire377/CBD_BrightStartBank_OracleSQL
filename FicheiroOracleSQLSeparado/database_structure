@@ -1,3 +1,4 @@
+--estrutura
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- CLEAR DATABASE.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -946,7 +947,7 @@ CREATE TABLE HISTORYTRANSACTION_ (
     idCard NUMBER(9),
     idTransactionType NUMBER(9),
     idAccount NUMBER(9),  
-    idOwner NUMBER(9),
+    idOwner NUMBER(9)
 ) PARALLEL;
 /
  

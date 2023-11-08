@@ -1,3 +1,4 @@
+--function
 
 DROP PROCEDURE SP_ALL_INSERT;
 /
@@ -423,73 +424,3 @@ BEGIN
     END IF;
 END;
 /
-
-
-/*
-BEGIN insert_transaction(
-        10, -- amount_VAR
-        TO_DATE('2023-11-05', 'YYYY-MM-DD'), -- dateTransaction_VAR
-        'Example Transaction', -- nameTransaction_VAR
-        'processando', -- status_VAR
-        1, -- idCard_VAR
-        5, -- idTransactionType_VAR
-        2, -- idAccount_VAR
-        1, -- idOwner_VAR
-        1 -- idRecipient_Account_VAR
-    );
-    COMMIT;
-END;
-/
-
-
--->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
-
-CREATE OR REPLACE PROCEDURE InsertRandomTransactions AS
-  v_num_rows NUMBER := 10;
-  v_name_transaction VARCHAR2(45);
-  v_idconta NUMBER;
-  v_idcard NUMBER;
-  v_idowner NUMBER;
-  v_idTransactionType NUMBER;
-  v_Moneylimit NUMBER;
-BEGIN
-  FOR i IN 1..v_num_rows LOOP
-    -- GUARDAR VALOR RANDOM DE ID CONTA
-    SELECT * INTO v_idconta FROM (SELECT idaccount FROM ACCOUNT_ WHERE status != 'congelada' ORDER BY dbms_random.value) WHERE ROWNUM = 1;
-    -- GUARDAR VALOR De um cartao random q esteja associado à conta q obtivemos o id
-    SELECT * INTO v_idcard FROM (SELECT idcard FROM CARD_ WHERE idaccount = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
-    -- Guardar valor do id owner que esteja associado à conta q temos o id
-    SELECT * INTO v_idowner FROM (SELECT idowner FROM OWNER_ WHERE idaccount = v_idconta ORDER BY dbms_random.value) WHERE ROWNUM <= 1;
-    
-    -- GUARDAR VALOR PARA NOME DA TRANSACAO
-    SELECT * INTO v_name_transaction FROM (SELECT transactionname FROM Transaction_name_mview ORDER BY dbms_random.value) WHERE rownum = 1;
-    
-    --CONFORME LIMITE DO TIPO DE TRANSACAO CRIAR VARIAVEL COM LIMITE
-    SELECT * INTO v_idTransactionType FROM (SELECT idTransactionType FROM TRANSACTIONTYPE_ ORDER BY dbms_random.value) WHERE rownum = 1;
-    SELECT limittransaction INTO v_MoneyLimit FROM TRANSACTIONTYPE_ WHERE idTransactionType = v_idTransactionType;
-    
-    INSERT INTO TRANSACTION_ (IDTRANSACTION, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner, idRecipient_Account)
-    VALUES (
-      NULL,
-      FLOOR(DBMS_RANDOM.value * v_MoneyLimit) + 1, -- amount
-      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')), -- date da Transaction
-      v_name_transaction, -- transaction name
-      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
-      v_idcard, -- card id
-      v_idTransactionType, -- id transaction type
-      v_idconta, -- id account
-      v_idowner, -- id owner
-      CASE WHEN v_idTransactionType = 5 THEN FLOOR(DBMS_RANDOM.value * (SELECT Count(idAccount) FROM Account_ WHERE idAccount != v_idconta)) + 1 ELSE NULL END
-    );
-  END LOOP;
-  COMMIT;
-END InsertRandomTransactions;
-/
-
-
-BEGIN
-  InsertRandomTransactions;
-END;
-/
-
-*/
