@@ -2,6 +2,70 @@
 -- VIEWS.
 -->>>>>>>>>>>-------------------------------------------------------------------
 
+-->>>>>>>>>>>-------------------------------------------------------------------
+-- DROP'S
+-->>>>>>>>>>>-------------------------------------------------------------------
+
+DROP VIEW ProcessedTransactions;
+/
+
+DROP VIEW owners_with_marital_status;
+/
+
+DROP VIEW owners_with_age_and_job_view;
+/
+
+DROP VIEW CardUsageStatistics;
+/
+
+DROP VIEW owner_client_card;
+/
+
+DROP VIEW active_credit_card_view;
+/
+
+DROP VIEW expired_card_view;
+/
+
+DROP VIEW credit_card_view;
+/
+
+DROP VIEW debit_card_view;
+/
+
+DROP VIEW ShowAccountIdAgencyAcctype;
+/
+
+DROP VIEW AccountHighestBalanceAgency;
+/
+
+DROP VIEW ClientAccountBalanceStats;
+/
+
+DROP VIEW AgenciesWithEmployeeCount;
+/
+
+DROP VIEW EmployeeWithAgency;
+/
+
+DROP VIEW AverageEmployeeAgeByAgency;
+/
+
+DROP VIEW TransactionTypeStat;
+/
+
+DROP VIEW AccountTypeDescription;
+/
+
+DROP VIEW LocationAgency;
+/
+
+DROP VIEW location_portugal;
+/
+
+DROP VIEW location_not_portugal;
+/
+
 DROP MATERIALIZED VIEW transaction_name_mview;
 /
 
