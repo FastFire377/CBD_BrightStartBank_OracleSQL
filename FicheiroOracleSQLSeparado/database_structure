@@ -25,6 +25,9 @@ DROP TABLE HISTORYTRANSACTION_;
 DROP TRIGGER CHECK_ACCOUNT_FROZEN_tgr;
 /
 
+DROP TRIGGER UPDATE_BALANCE_tgr;
+/
+
 -->>>>>>>>>>>----------------------------------
 
 DROP TABLESPACE HISTORYTRANSACTION_TABLE_SPACE INCLUDING CONTENTS AND DATAFILES;
@@ -982,3 +985,49 @@ BEGIN
     END IF;
 END;
 /
+
+-->>>>>>>>>>>
+ 
+
+ CREATE OR REPLACE TRIGGER UPDATE_BALANCE_tgr -----> retira o montante de uma conta, apos a transicao ser feita
+AFTER INSERT ON TRANSACTION_ 
+FOR EACH ROW
+DECLARE
+    v_account_status VARCHAR(10);
+BEGIN
+    SELECT status INTO v_account_status FROM ACCOUNT_ WHERE idAccount = :NEW.idAccount; 
+
+    IF :NEW.idTransactionType = 5 THEN
+        IF :NEW.idRecipient_Account IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_TypeBtwnTwoAcc constraint violation');
+        ELSIF :NEW.idAccount = :NEW.idRecipient_Account THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_AccDIFRecip constraint violation');
+        ELSIF v_account_status = 'congelada' THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_FrozenAccount constraint violation');
+        ELSE
+            -- CONSTRAINTS PASSED
+            -- RETIRAR DO EMISSARIO
+            UPDATE ACCOUNT_
+            SET balance = balance + :NEW.amount
+            WHERE idAccount = :NEW.idAccount;
+
+            -- ADICIONAR AO RECEPIENTE
+            UPDATE ACCOUNT_
+            SET balance = balance - :NEW.amount
+            WHERE idAccount = :NEW.idRecipient_Account;
+        END IF;
+    ELSIF :NEW.idTransactionType <> 5 THEN
+        -- Check CONSTRAINTS before performing updates
+        IF :NEW.idRecipient_Account IS NOT NULL THEN
+            DBMS_OUTPUT.PUT_LINE('CHK_DIFTypeTwoAcc constraint violation');
+        ELSE
+            -- All constraints passed, proceed with the updates
+            -- RETIRAR/ADICIONAR AO EMISSARIO
+            UPDATE ACCOUNT_
+            SET balance = balance + :NEW.amount
+            WHERE idAccount = :NEW.idAccount;
+        END IF;
+    END IF;
+END;
+/
+
