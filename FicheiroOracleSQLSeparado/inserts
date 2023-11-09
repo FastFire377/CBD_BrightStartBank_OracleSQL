@@ -49,7 +49,7 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('ATM_Cambio', 'Cambio ', 5, 400)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('Cheque', 'Deposito ou levantamento por cheque', 1, 600)
+    VALUES ('Cheque', 'Deposito ou levantamento por cheque', 1, 1000000)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, 1000000)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
