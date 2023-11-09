@@ -53,7 +53,7 @@ INSERT /*+ APPEND PARALLEL */ ALL
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
     VALUES ('Transferencia_de_fundos', 'Transferencia de uma conta para outra', 0.5, 1000000)
     INTO TRANSACTIONTYPE_ (nameTransactionType, description, appliedRate, LimitTransaction) 
-    VALUES ('Cartao', 'Transacao por cartao', 0, 1)
+    VALUES ('Cartao', 'Transacao por cartao', 0, 10000)
 SELECT * FROM dual;
 /
 
