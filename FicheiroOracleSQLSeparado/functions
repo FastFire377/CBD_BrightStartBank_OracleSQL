@@ -517,43 +517,118 @@ BEGIN
 END InsertRandomTransactions;
 /
 
+
 DROP TRIGGER logCLient;
-
+ 
 CREATE OR REPLACE TRIGGER logCLient
+
 AFTER INSERT OR UPDATE OR DELETE ON CLIENT_
+
 FOR EACH ROW
+
 DECLARE
+
     v_column_name VARCHAR(500);
+
     v_OLDcolumn_name VARCHAR(500);
+
     v_NEWcolumn_name VARCHAR(500);
-    
+
     v_tableName VARCHAR(99) := 'CLIENT_';
-    
+
     v_saveCode VARCHAR(255);
-    
+
     codeExec VARCHAR(500);
+
 BEGIN
+
     IF INSERTING THEN
+
         v_saveCode :=  '--NOVO REGISTO-- Nif do cliente: ' || :NEW.nif || ', Nome do cliente: ' || :NEW.nameClient || ', id da agencia:' || :NEW.idAgency;
+
         SP_LOG_INSERT('insert', v_tableName, v_saveCode);
+
     ELSIF UPDATING THEN
-        
+
         FOR c IN (SELECT column_name
+
           FROM user_tab_columns
+
           WHERE table_name = 'CLIENT_')
+
         LOOP
+
             v_column_name := c.column_name;
+------------
+            IF :OLD.nif <> :NEW.nif THEN
 
-            IF :OLD.v_column_name <> :NEW.v_column_name THEN
-                SP_LOG_INSERT('Update', v_tableName, ' - ');
+                SP_LOG_INSERT('Update', v_tableName, ' Novo nif '|| :NEW.nif);
+            ELSIF :OLD.nameClient  <> :NEW.nameClient  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo nameClient '|| :NEW.nameClient );
+                
+            ELSIF :OLD.Contact.nin <> :NEW.Contact.nin  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo nin '|| :NEW.Contact.nin );
+                
+            ELSIF :OLD.Contact.Contact <> :NEW.Contact.Contact  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo Contact '|| :NEW.Contact.Contact );
+                
+            ELSIF :OLD.Contact.email <> :NEW.Contact.email  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo email '|| :NEW.Contact.email );
+                
+            ELSIF :OLD.address.street  <> :NEW.address.street   THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo street   '|| :NEW.address.street   );
+                
+            ELSIF :OLD.address.districtProvince <> :NEW.address.districtProvince  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo districtProvince '|| :NEW.address.districtProvince  );
+                
+            ELSIF :OLD.address.country <> :NEW.address.country  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo address  '|| :NEW.address.country  );                
+                
+            ELSIF :OLD.age <> :NEW.age THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo age  '|| :NEW.age  );
+                
+            ELSIF :OLD.dateBirth <> :NEW.dateBirth THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo dateBirth  '|| :NEW.dateBirth  );
+                
+         ELSIF :OLD.jobClient <> :NEW.jobClient  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo jobClient '|| :NEW.jobClient  );
+                
+         ELSIF :OLD.maritalStatus <> :NEW.maritalStatus  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo maritalStatus '|| :NEW.maritalStatus  );
+                
+         ELSIF :OLD.passwordCLient <> :NEW.passwordCLient  THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo passwordCLient '|| :NEW.passwordCLient );
+                
+         ELSIF :OLD.idAgency <> :NEW.idAgency THEN
+
+                SP_LOG_INSERT('Update', v_tableName, ' Novo idAgency '|| :NEW.idAgency ); 
             END IF;
-        END LOOP;
-        
-    ELSIF DELETING THEN
-        v_saveCode := '--ANTIGO REGISTO-- Nif do cliente:' || :OLD.nif || ', Nome do cliente: ' || :OLD.nameClient || ', id da ajencia:' || :OLD.idAgency;
-        SP_LOG_INSERT('delete', v_tableName, v_saveCode);
-    END IF;
-END;
-/
+-------------
 
+        END LOOP;
+
+    ELSIF DELETING THEN
+
+        v_saveCode := '--ANTIGO REGISTO-- Nif do cliente:' || :OLD.nif || ', Nome do cliente: ' || :OLD.nameClient || ', id da ajencia:' || :OLD.idAgency;
+
+        SP_LOG_INSERT('delete', v_tableName, v_saveCode);
+
+    END IF;
+
+END;
+
+/
+ 
 --select * from LOG_;
