@@ -73,3 +73,13 @@ COMMENT ON TABLE OWNER_ IS 'Esta tabela destina-se ao armazenamento dos
  dados sobre os proprietários das contas, incluindo informações sobre a 
  relação de propriedade, associada ao número de identificação fiscal (NIF).';
  /
+ -->>>>>>>>>>> HISTORYTRANSACTION
+ COMMENT ON TABLE HISTORYTRANSACTION_ IS 'Esta tabela destina-se ao armazenamento 
+ do histórico das transações, incluindo dados sobre o montante, estado e data de início da transação.';
+ /
+ -->>>>>>>>>>> LOG
+ COMMENT ON TABLE LOG_ IS 'Esta tabela destina-se ao armazenamento de registros de log, incluindo informações 
+ sobre o nível da mensagem, código da mensagem, local da ação e data do log.';
+ /
+
+
