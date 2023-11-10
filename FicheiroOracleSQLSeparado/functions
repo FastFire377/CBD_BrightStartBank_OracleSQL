@@ -12,7 +12,7 @@ DROP PROCEDURE SP_ALL_DELETE;
 DROP PROCEDURE insert_transaction;
 /
 
-DROP PROCEDURE TransferObsoleteTransactions;
+DROP PROCEDURE PurgeObsoleteTransactions;
 /
 DROP PROCEDURE InsertRandomTransactions;
 /
@@ -465,7 +465,7 @@ END;
 /
 
 --BEGIN
-  --  TransferObsoleteTransactions;
+  --  PurgeObsoleteTransactions;
 --END;
 
 
