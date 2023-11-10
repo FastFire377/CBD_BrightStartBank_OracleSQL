@@ -12,6 +12,9 @@ DROP PROCEDURE SP_ALL_DELETE;
 DROP PROCEDURE insert_transaction;
 /
 
+DROP PROCEDURE TransferObsoleteTransactions;
+/
+
 -->>>>>>>>>>>-------------------------------------------------------------------
 -- FUnctions.
 -->>>>>>>>>>>-------------------------------------------------------------------
@@ -424,3 +427,40 @@ BEGIN
     END IF;
 END;
 /
+-->>>>>>>>>>>-------------------------------------------------------------------
+-->> PROCEDURE PARA TRANFERIR TRANSACÕES PARA HISTORICO DE TRANSAÇÕES 
+
+CREATE OR REPLACE PROCEDURE TransferObsoleteTransactions AS
+BEGIN
+    INSERT INTO HISTORYTRANSACTION_ (idHistoryTransaction, tranferDate, idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
+    SELECT 
+        NULL, 
+        SYSDATE, 
+        idTransaction, 
+        amount, 
+        dateTransaction, 
+        nameTransaction, 
+        status, 
+        idCard, 
+        idTransactionType, 
+        idAccount, 
+        idOwner 
+    FROM TRANSACTION_
+    WHERE dateTransaction < ADD_MONTHS(SYSDATE, -2);
+    
+    DELETE FROM TRANSACTION_
+    WHERE dateTransaction < ADD_MONTHS(SYSDATE, -2);
+
+    COMMIT;
+END MOVE_TRANSACTIONS_TO_HISTORY;
+/
+BEGIN
+    MOVE_TRANSACTIONS_TO_HISTORY;
+END;
+/
+
+BEGIN
+    TransferObsoleteTransactions;
+END;
+/
+
