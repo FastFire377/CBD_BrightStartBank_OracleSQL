@@ -435,9 +435,9 @@ END;
 -->>>>>>>>>>>-------------------------------------------------------------------
 -->> PROCEDURE PARA TRANFERIR TRANSACÕES PARA HISTORICO DE TRANSAÇÕES 
 
-CREATE OR REPLACE PROCEDURE TransferObsoleteTransactions AS
+CREATE OR REPLACE PROCEDURE PurgeObsoleteTransactions AS
 BEGIN
-    INSERT INTO HISTORYTRANSACTION_ (idHistoryTransaction, tranferDate, idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
+    INSERT /* PARALLEL */ INTO HISTORYTRANSACTION_ (idHistoryTransaction, tranferDate, idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
     SELECT 
         NULL, 
         SYSDATE, 
@@ -446,7 +446,7 @@ BEGIN
         dateTransaction, 
         nameTransaction, 
         status, 
-        idCard, 
+        idCard,  
         idTransactionType, 
         idAccount, 
         idOwner 
@@ -457,7 +457,11 @@ BEGIN
     WHERE dateTransaction < ADD_MONTHS(SYSDATE, -2);
 
     COMMIT;
-END TransferObsoleteTransactions;
+END PurgeObsoleteTransactions;
+/
+BEGIN
+    PurgeObsoleteTransactions;
+END;
 /
 
 --BEGIN
