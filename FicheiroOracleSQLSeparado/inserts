@@ -213,52 +213,6 @@ INSERT /*+ APPEND PARALLEL */ ALL
 SELECT * FROM dual;
 /
 
--->>>>>>>>>>> TRANSACTION AUTOMATIC AND RANDOM
-
-CREATE OR REPLACE PROCEDURE InsertRandomTransactions AS
-  v_num_rows NUMBER := 5;
-  v_name_transaction VARCHAR2(45);
-  v_idconta NUMBER;
-  v_idcard NUMBER;
-  v_idowner NUMBER;
-  v_idTransactionType NUMBER;
-  v_Moneylimit NUMBER;
-BEGIN
-  FOR i IN 1..v_num_rows LOOP
-    -- GUARDAR VALOR RANDOM DE ID CONTA E GUARDAR VALOR DO PRIMEIRO CARTAO ASSOCIADO A ESSA CONTA
-    SELECT C.IDACCOUNT INTO v_idconta FROM (SELECT * FROM ACCOUNT_ ORDER BY dbms_random.value) C WHERE rownum = 1;
-    SELECT C.idcard INTO v_idcard FROM (SELECT * FROM CARD_ WHERE idcard = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
-    SELECT C.idowner INTO v_idowner FROM (SELECT * FROM OWNER_ where IDOWNER = v_idconta ORDER BY dbms_random.value) C WHERE ROWNUM <= 1;
-    
-    -- GUARDAR VALOR PARA NOME DA TRANSACAO
-    SELECT C.TransactionName INTO v_name_transaction FROM (SELECT * FROM Transaction_name_mview ORDER BY dbms_random.value) C WHERE rownum = 1;
-    
-    --CONFORME LIMITE DO TIPO DE TRANSACAO CRIAR VARIAVEL COM LIMITE
-    SELECT C.idTransactionType INTO v_idTransactionType FROM (SELECT * FROM TRANSACTIONTYPE_ ORDER BY dbms_random.value) C WHERE rownum = 1;
-    SELECT C.limittransaction INTO v_MoneyLimit FROM TRANSACTIONTYPE_ C WHERE idTransactionType = v_idTransactionType;
-    
-    INSERT INTO TRANSACTION_ (idTransaction, amount, dateTransaction, nameTransaction, status, idCard, idTransactionType, idAccount, idOwner)
-    VALUES (
-      NULL, -- auto increment
-      FLOOR(DBMS_RANDOM.value * v_MoneyLimit) + 1, -- amount
-      TO_DATE('01-JAN-2020', 'DD-MON-YYYY') + DBMS_RANDOM.value * (TO_DATE('01-DEC-2023', 'DD-MON-YYYY') - TO_DATE('01-JAN-2020', 'DD-MON-YYYY')), -- date da Transaction
-      v_name_transaction, -- transaction name
-      CASE WHEN DBMS_RANDOM.value < 0.5 THEN 'processando' ELSE 'concluido' END, -- status
-      v_idcard, -- card id
-      v_idTransactionType, -- id transaction type
-      v_idconta, -- id account
-      v_idowner -- id owner
-    );
-  END LOOP;
-  COMMIT;
-END InsertRandomTransactions;
-/
-
-
-BEGIN
-  InsertRandomTransactions;
-END;
-/
 
 -->>>>>>>>>>> TRANSACTION
 
