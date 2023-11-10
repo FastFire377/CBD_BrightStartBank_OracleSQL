@@ -932,9 +932,10 @@ END;
  -->>>>>>>>>>>-------------------------------------------------------------------
 CREATE TABLE LOG_(
 idLog NUMBER(10) PRIMARY KEY,
-levelMensage varchar(25),
+levelMessage varchar(25),
 codeMessage VARCHAR(999),
 actionLocation VARCHAR(50),
+createdBy varchar(100);
 logDate TIMESTAMP
 ) PARALLEL;
 /
