@@ -135,14 +135,17 @@ BEGIN
         v_getTable varchar(200);
         
         v_dateValue VARCHAR2(20);
+        
+        v_createdBy varchar(200);
     BEGIN
         v_getError := '' || errorValue;
         
         select getTableName(tableName) INTO v_getTable FROM dual;
+        select USER INTO v_createdBy FROM dual;
         
         v_dateValue := TO_CHAR(SYSDATE, 'DD/MM/YYYY HH24:MI:SS');
         
-        INSERT /*+ PARALLEL APPEND */ INTO LOG_ (levelMensage, codeMessage, actionLocation, logDate) VALUES ( levelMensageValue , v_getError, v_getTable, TO_TIMESTAMP(v_dateValue, 'DD/MM/YYYY HH24:MI:ss'));
+        INSERT /*+ PARALLEL APPEND */ INTO LOG_ (levelMessage, codeMessage, actionLocation, createdBy, logDate) VALUES ( levelMensageValue , v_getError, v_getTable, v_createdBy, TO_TIMESTAMP(v_dateValue, 'DD/MM/YYYY HH24:MI:ss'));
     END;
 EXCEPTION
     WHEN OTHERS THEN
@@ -281,7 +284,7 @@ BEGIN
         COMMIT;
 
         BEGIN
-            SP_LOG_INSERT('Imformation', tableName, v_insert_query || ' - successful ');
+            SP_LOG_INSERT('Imformation', v_getTable, v_insert_query || ' - successful ');
         END;
     END;
 EXCEPTION
@@ -300,10 +303,10 @@ DECLARE
     UpdateValues multiObjectFunction;
     coditionValues multiObjectFunction;
 BEGIN
-    UpdateValues := multiObjectFunction('descri', 'testeAAAAAAA' );
-    coditionValues := multiObjectFunction('idAccountType', '3', '=');    
+    UpdateValues := multiObjectFunction('nameclient', '333' );
+    coditionValues := multiObjectFunction('nif', '123456789', '=');    
     
-    --SP_ALL_UPDATE('ACCOUNTTYP', UpdateValues, coditionValues);
+    --SP_ALL_UPDATE('CLIENT_', UpdateValues, coditionValues);
 END;
 /
 
@@ -513,3 +516,44 @@ BEGIN
   COMMIT;
 END InsertRandomTransactions;
 /
+
+DROP TRIGGER logCLient;
+
+CREATE OR REPLACE TRIGGER logCLient
+AFTER INSERT OR UPDATE OR DELETE ON CLIENT_
+FOR EACH ROW
+DECLARE
+    v_column_name VARCHAR(500);
+    v_OLDcolumn_name VARCHAR(500);
+    v_NEWcolumn_name VARCHAR(500);
+    
+    v_tableName VARCHAR(99) := 'CLIENT_';
+    
+    v_saveCode VARCHAR(255);
+    
+    codeExec VARCHAR(500);
+BEGIN
+    IF INSERTING THEN
+        v_saveCode :=  '--NOVO REGISTO-- Nif do cliente: ' || :NEW.nif || ', Nome do cliente: ' || :NEW.nameClient || ', id da agencia:' || :NEW.idAgency;
+        SP_LOG_INSERT('insert', v_tableName, v_saveCode);
+    ELSIF UPDATING THEN
+        
+        FOR c IN (SELECT column_name
+          FROM user_tab_columns
+          WHERE table_name = 'CLIENT_')
+        LOOP
+            v_column_name := c.column_name;
+
+            IF :OLD.v_column_name <> :NEW.v_column_name THEN
+                SP_LOG_INSERT('Update', v_tableName, ' - ');
+            END IF;
+        END LOOP;
+        
+    ELSIF DELETING THEN
+        v_saveCode := '--ANTIGO REGISTO-- Nif do cliente:' || :OLD.nif || ', Nome do cliente: ' || :OLD.nameClient || ', id da ajencia:' || :OLD.idAgency;
+        SP_LOG_INSERT('delete', v_tableName, v_saveCode);
+    END IF;
+END;
+/
+
+--select * from LOG_;
